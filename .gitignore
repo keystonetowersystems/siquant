@@ -1,0 +1,16 @@
+*.pyc
+
+/dist/
+
+/*.egg-info
+
+
+/.eggs
+
+/build/
+
+/.idea/
+
+/src/
+
+/towerdesign/repl.py*
