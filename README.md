@@ -63,7 +63,8 @@ q.Force.multiplier(np.ndarray)(force_vector)
 
 ```
 
-A short hand is also provided if both the operand and the result have class type Quantity.
+A short hand is also provided if both the operand and the result have class type Quantity,
+and base_units with factor=1.
 
 ```python
 q.Force.q_multiplier(q.Distance, q.Moment)
@@ -72,7 +73,7 @@ q.Force.q_multiplier(q.Distance, q.Moment)
 
 def force_times_distance(force, distance):
     return q.Moment(
-        force.get(), distance.get(), 
+        force.get() * distance.get(), 
         units=force.base_units * distance.base_units
     )
 q.Force.q_multiplier(q.Distance)(force_times_distance)
