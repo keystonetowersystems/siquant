@@ -72,6 +72,14 @@ class Mass(Quantity):
 
     def __init__(self, quantity: numeric_t, units: u.Unit = u.kilograms): ...
 
+class Work(Quantity):
+
+    def __init__(self, quantity: numeric_t, units: u.Unit = u.joules): ...
+
+class Power(Quantity):
+
+    def __init__(self, quantity: numeric_t, units: u.Unit = u.watts): ...
+
 class Density(Quantity):
 
     def __init__(self, quantity: numeric_t, units: u.Unit = u.kilograms / u.meters ** 3): ...
