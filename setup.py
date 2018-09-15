@@ -1,9 +1,14 @@
 from setuptools import setup, find_packages
 
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
 setup(
     name='siquant',
     version='1.0.0.dev1',
     description='SI units and quantities library',
+    long_description=readme(),
     url='https://github.com/keystonetowersystems/siquant',
     author='Greg Echelberger',
     author_email='greg@keystonetowersystems.com',
