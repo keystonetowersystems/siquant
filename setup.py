@@ -6,9 +6,10 @@ def readme():
 
 setup(
     name='siquant',
-    version='1.0.0.dev1',
+    version='1.0.1.dev1',
     description='SI units and quantities library',
     long_description=readme(),
+    long_description_content_type="text/markdown",
     url='https://github.com/keystonetowersystems/siquant',
     author='Greg Echelberger',
     author_email='greg@keystonetowersystems.com',
