@@ -76,7 +76,7 @@ def force_times_distance(force, distance):
         force.get() * distance.get(), 
         units=force.base_units * distance.base_units
     )
-q.Force.q_multiplier(q.Distance)(force_times_distance)
+q.Force.multiplier(q.Distance)(force_times_distance)
 ```
 
 Note that this does induce some overhead for unit conversion with the quantity conversion.
