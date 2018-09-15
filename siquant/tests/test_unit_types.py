@@ -6,17 +6,17 @@ class BaseUnitTestCase(unittest.TestCase):
 
     def test_base_units_at_unity(self):
 
-        self.assertEqual(u.meters.factor, 1)
-        self.assertEqual(u.square_meters.factor, 1)
-        self.assertEqual(u.cubic_meters.factor, 1)
-        self.assertEqual(u.quartic_meters.factor, 1)
-        self.assertEqual(u.kilograms.factor, 1)
-        self.assertEqual(u.seconds.factor, 1)
-        self.assertEqual(u.newtons.factor, 1)
-        self.assertEqual(u.newton_meters.factor, 1)
-        self.assertEqual(u.pascals.factor, 1)
-        self.assertEqual(u.hertz.factor, 1)
-        self.assertEqual(u.radians.factor, 1)
+        self.assertEqual(u.meters._factor, 1)
+        self.assertEqual(u.square_meters._factor, 1)
+        self.assertEqual(u.cubic_meters._factor, 1)
+        self.assertEqual(u.quartic_meters._factor, 1)
+        self.assertEqual(u.kilograms._factor, 1)
+        self.assertEqual(u.seconds._factor, 1)
+        self.assertEqual(u.newtons._factor, 1)
+        self.assertEqual(u.newton_meters._factor, 1)
+        self.assertEqual(u.pascals._factor, 1)
+        self.assertEqual(u.hertz._factor, 1)
+        self.assertEqual(u.radians._factor, 1)
 
     def test_distance_units(self):
 
@@ -34,9 +34,9 @@ class BaseUnitTestCase(unittest.TestCase):
         self.assertFalse(u.newtons.matches_dimensions(u.meters))
         self.assertFalse(u.newton_meters.matches_dimensions(u.meters))
 
-        self.assertEqual(u.meters.scale(100), 100)
-        self.assertEqual(u.millimeters.scale(100), 100000)
-        self.assertEqual(u.centimeters.scale(100), 10000)
+        self.assertEqual(u.meters.from_base_units(100), 100)
+        self.assertEqual(u.millimeters.from_base_units(100), 100000)
+        self.assertEqual(u.centimeters.from_base_units(100), 10000)
 
     def test_area_units(self):
 
