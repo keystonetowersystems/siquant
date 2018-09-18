@@ -13,10 +13,21 @@ class Unit:
         self._dimensions = dimensions
 
     scale = property(lambda self: self._scale)
-    dimensions = property(lambda self: self._dims)
+    dimensions = property(lambda self: self._dimensions)
+
+    m = property(lambda self: self._dimensions[0])
+    kg = property(lambda self: self._dimensions[1])
+    s = property(lambda self: self._dimensions[2])
+    k = property(lambda self: self._dimensions[3])
+    a = property(lambda self: self._dimensions[4])
+    mol = property(lambda self: self._dimensions[5])
+    cd = property(lambda self: self._dimensions[6])
 
     def base_units(self):
         return Unit(1.0, self._dimensions)
+
+    def compatible(self, units):
+        return self._dimensions == units._dimensions
 
     def __mul__(self, other):
         if isinstance(other, Unit):
