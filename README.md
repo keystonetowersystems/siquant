@@ -6,6 +6,21 @@ A library to provide dimensional and quantitative analysis using the SI units sy
 
 todo: long description
 
+# Units
+
+```python
+>>>import siquant.units as u
+
+>>>force = 100 * u.newtons
+>>>force
+Quantity(100, Unit(1, ...))
+>>>moment_arm = 750 u.millimeters
+>>>moment = force * moment_arm
+>>>moment.get_as(u.joules)
+
+
+```
+
 # Examples
 
 ```python
