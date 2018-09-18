@@ -16,7 +16,7 @@ class Quantity:
         return self._quantity
 
     def get_as(self, units):
-        assert(self._units._dimensions == units._dimensions)
+        assert(self._units.compatible(units))
         return self._quantity * self._units._scale / units._scale
 
     def cvt_to(self, units):
@@ -28,21 +28,21 @@ class Quantity:
     def __eq__(self, other):
         if not isinstance(other, Quantity):
             return NotImplemented
-        return self._units._dimensions == other._units._dimensions and self._quantity == other.get_as(self._units)
+        return self._units.compatible(other._units) and self._quantity == other.get_as(self._units)
 
     def __lt__(self, other):
         if not isinstance(other, Quantity):
             return NotImplemented
-        return self._units._dimensions == other._units._dimensions and self._quantity < other.get_as(self._units)
+        return self._units.compatible(other._units) and self._quantity < other.get_as(self._units)
 
     def __add__(self, other):
-        assert(self._units._dimensions == other._units._dimensions)
+        assert(self._units.compatible(other._units))
         return Quantity(self._quantity + other.get_as(self._units), self._units)
 
     __iadd__ = __add__
 
     def __sub__(self, other):
-        assert(self._units.matches_dimensions(other.units))
+        assert(self._units.compatible(other._units))
         return Quantity(self._quantity - other.get_as(self._units), self._units)
 
     __isub__ = __sub__
@@ -80,5 +80,5 @@ class Quantity:
         return bool(self._quantity)
 
     def __repr__(self):
-        return '%s(%f, %s)' % (self.__class__.__name__, self._quantity, self._units)
+        return '%s(%f, %r)' % (self.__class__.__name__, self._quantity, self._units)
 
