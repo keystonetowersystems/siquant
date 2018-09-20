@@ -1,116 +1,167 @@
 # siquant
 
-A library to provide dimensional and quantitative analysis using the SI units system.
+A library to provide dimensional and quantitative analysis within the SI units system.
 
 # Description
 
-todo: long description
+This library provides a reasonably efficient set of tools to easily track units through abitrary calculations. All types
+are designed to be immutable, and as such can be shared relatively freely.
 
-# Units
+There are two primary data types:
+* SIUnit - provide some scaling factor of a specific dimensionality of the 7 fundamental SI units.
+* ScalarQuantity - support arithmetic of a quantity of units
 
-```python
->>>import siquant.units as u
+Some predefined units are provided in modules in the siquant.systems package.
 
->>>force = 100 * u.newtons
->>>force
-Quantity(100, Unit(1, ...))
->>>moment_arm = 750 u.millimeters
->>>moment = force * moment_arm
->>>moment.get_as(u.joules)
-
-
-```
-
-# Examples
+# Getting Started
 
 ```python
-import siquant.quantities as q
-import siquant.units as u
-
-force = q.Force(120, u.kilonewtons)
-moment = force * q.Distance(100, u.meters)
-inertia = q.MomentOfArea(1000000, u.quartic_millimeters)
-extreme_fiber = q.Distance(250, u.millimeters)
-section_modulus = inertia / extreme_fiber
-stress = moment / section_modulus
-
-print(stress.get_as(u.gigapascals))
-# 3000 GPa
-```
-
-# Extending Quantity Conversions
-
-Quantities are restricted to only allow operations with operands of types where 
-an explicit conversion function has been registered.
-
-```python
->>> Moment(1) / SectionModulus(1)
-Stress(1.000000, units=Unit(1.000000, m=-1, kg=1, s=-2, k=0, amp=0, cd=0, mol=0))
-
-# Even though Volume has the same base_units as SectionModulus,
-# only explicitly provided operations should succeed.
-
->>> Moment(1) / Volume(1)
+>>>from siquant.systems import si
+>>>force = 100 * si.kilonewtons
+>>>moment_arm = 50 * si.meters
+>>>torque = force * moment_arm
+>>>torque.get()
+5000
+>>>str(torque.units)
+'1000*kg**1*m**2*s**-2'
+>>>torque.get_as(si.newtons * si.meters)
+5000000.0
+>>>torque.get_as(si.newtons)
 Traceback (most recent call last):
   File "<input>", line 1, in <module>
-  File "/siquant/siquant/quantities/dispatch.py", line 5, in dispatch
-    fcn = registry[type(other)]
-KeyError: <class 'siquant.quantities.qtypes.Volume'>
+  File "/siquant/siquant/quantities.py", line 19, in get_as
+      assert(self._units.compatible(units))
+AssertionError
+>>>torque = torque.normalized()
+>>>torget.get()
+5000000.0
+>>>str(torque.units)
+'1*kg**1*m**2*s**-2'
 ```
 
-See [operations.py](siquant/quantities/operations.py)
+# Defining New Units
 
-### Adding User Defined Operations 
+New unit types can be created:
+* implicitly derived through combination of existing units.
+* explicitly via the Unit.Unit() factory method.
+
+## Derived Units  
 
 ```python
-import numpy as np
-import siquant.quantities as q
+from siquant.systems import si
+pounds = si.kilograms * si.SIUnit.Unit(0.445)
+inches = si.millimeters * si.SIUnit.Unit(25.4)
+ksi = si.kilo * pounds / inches ** 2
+```
 
-def force_times_distance(force, distance):
-    return q.Moment(force.get() * distance.get())
+## Explicit Units
 
-q.Force.multiplier(q.Distance)(force_times_distance)
+```python
+from siquant.systems import si
+from siquant.units import SIUnit
+wonky_pi_unit = SIUnit.Unit(3.14, m=1)
+circle = 100 * wonky_pi_unit
+diameter = circle.get()
+circumeference = circle.get_as(si.meters)
+``` 
 
-def force_vector(force, ndarray_instance):
-    return q.Force(force.get() * ndarray_instance)
+# Supporting Vector Quantities
+
+There are a number of vector libraries available, all with different interfaces. As such, a ```VectorQuantity``` is not 
+provided. However, integration of existing vector libraries should be possible with relative ease.
+
+## Provide a VectorQuantity interface:
+
+```python
+import numbers
+from siquant.quantities import Quantity, ScalarQuantity
+
+class VectorQuantity(Quantity):
     
-q.Force.multiplier(np.ndarray)(force_vector)
-
-```
-
-A short hand is also provided if both the operand and the result have class type Quantity,
-and base_units with factor=1.
-
-```python
-q.Force.q_multiplier(q.Distance, q.Moment)
-
-# is equivalent to:
-
-def force_times_distance(force, distance):
-    return q.Moment(
-        force.get() * distance.get(), 
-        units=force.base_units * distance.base_units
-    )
-q.Force.multiplier(q.Distance)(force_times_distance)
-```
-
-Note that this does induce some overhead for unit conversion with the quantity conversion.
-
-### Adding User Defined Quantities
-
-```python
-import siquant.units as u
-import siquant.quantities as q
-from siquant.quantities.meta import LinearQuantity
-
-percentage = u.Unit(1 / 100)
-
-class Efficiency(metaclass=LinearQuantity, base_units=u.unity):
-    pass
+    def cross(self, other):
+        if not isinstance(other, VectorQuantity):
+            raise TypeError()
+        return VectorQuantity(self.quantity.cross(other.quantity), self.units * other.units)
+        
+    def dot(self, other):
+        if not isinstance(other, VectorQuantity):
+            raise TypeError()
+        return ScalarQuantity(self.quantity.dot(other.quantity), self.units * other.units)
+        
+    def __mul__(self, other):
+        if isinstance(other, numbers.Real):
+            return VectorQuantity(self.quantity * other, self.units)
+        if isinstance(other, ScalarQuantity):
+            return VectorQuantity(self.quantity * other.quantity, self.units * other.units)
+        if isinstance(other, VectorQuantity):
+            return self.dot(other)
+        return NotImplemented
+        
+    def __rmul__(self, other):
+        # Real, ScalarQuantity
+        ...
+        
+    # etc ...
     
-test = Efficiency(90, units=percentage)
-test.get() # 0.9
-test.get_as(percentage) # => 90.0
-
-Efficiency.q_multiplier(q.Power, q.Power)
+force_vector = VectorQuantity(my_vector, si.newtons)
 ```
+
+## Provide a hook for SIUnit (optional)
+
+The arithmetic methods of ```SIUnit``` only support operands of type ```numbers.Real``` and ```SIUnit```. In all other
+cases NotImplemented is returned. The interpretter will then attempt to delegate that operation to the other operand 
+type.
+
+In order to support the behavior ```Vector * SIUnit -> VectorQuantity``` the special methods ```__mul__``` and 
+```__rmul__``` should be augmented. The exact implementation will depend heavily upon the library being integrated, 
+in order to make sure that the new child type is always propagated correctly.
+
+### Composition
+
+```python
+from siquant.units import SIUnit
+from your.vec.lib import Vector
+
+class VectorWrapper:
+    
+    @classmethod
+    def Make(cls, *args, **kwargs):
+        return cls(Vector(*args, **kwargs))
+
+    def __init__(self, vector):
+        self._vector = vector
+
+    def unwrap(self):
+        return self._vector
+
+    def __mul__(self, other):
+        if isinstance(other, SIUnit):
+            return VectorQuantity(self, other)
+        return VectorWrapper(self._vector * other)
+        
+    def __rmul__(self, other):
+        if isinstance(other, SIUnit):
+            return VectorQuantity(self, other)
+        return VectorWrapper(other * self._vector)
+        
+    # any other operations to support
+```
+
+### Inheritance
+
+```python
+from siquant.units import SIUnit
+from your.vec.lib import Vector
+
+class QVector(Vector):
+    
+    def __mul__(self, other):
+        if isinstance(other, SIUnit):
+            return VectorQuantity(self, other)
+        return super().__mul__(other)
+        
+    __rmul__ = __imul__ = __mul__
+```
+### Including siquant as a dependency
+
+This is probably the simplest, and the least practical. 

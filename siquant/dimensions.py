@@ -1,6 +1,6 @@
 abbreviations = ('kg', 'm', 's', 'k', 'a', 'mol', 'cd')
 
-def Dimensions(kg=0, m=0, s=0, k=0, a=0, mol=0, cd=0):
+def SIDimensions(kg=0, m=0, s=0, k=0, a=0, mol=0, cd=0):
     return (kg, m, s, k, a, mol, cd)
 
 def dim_mul(dims1, dims2):

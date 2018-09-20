@@ -5,7 +5,12 @@ import numpy as np
 from siquant.quantities import Quantity
 from siquant.systems.si import *
 
-class FloatQuantityTestCase(unittest.TestCase):
+from siquant.vector import V2
+
+class ScalarQuantityTestCase(unittest.TestCase):
+    pass
+
+class VectorQuantityTestCase(unittest.TestCase):
     pass
 
 class NumpyQuantityTestCase(unittest.TestCase):
@@ -28,3 +33,4 @@ class NumpyQuantityTestCase(unittest.TestCase):
         self.assertArrayEqual(kn_vector.get(), np_array / 1000)
 
         self.assertEqual(force_vector, kn_vector)
+

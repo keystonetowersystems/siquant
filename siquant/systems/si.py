@@ -1,27 +1,28 @@
-from siquant.units import Unit
+from siquant.units import SIUnit
+from siquant.quantities import Quantity
 
-nano  = Unit.Unit(1 / 1e9)
-micro = Unit.Unit(1 / 1e6)
-milli = Unit.Unit(1 / 1000)
-centi = Unit.Unit(1 / 100)
-deci  = Unit.Unit(1 / 10)
-unity = Unit.Unit(1)
-deca  = Unit.Unit(10)
-hecta = Unit.Unit(100)
-kilo  = Unit.Unit(1000)
-mega  = Unit.Unit(1e6)
-giga  = Unit.Unit(1e9)
-tera  = Unit.Unit(1e12)
+nano  = SIUnit.Unit(1 / 1e9)
+micro = SIUnit.Unit(1 / 1e6)
+milli = SIUnit.Unit(1 / 1000)
+centi = SIUnit.Unit(1 / 100)
+deci  = SIUnit.Unit(1 / 10)
+unity = SIUnit.Unit(1)
+deca  = SIUnit.Unit(10)
+hecta = SIUnit.Unit(100)
+kilo  = SIUnit.Unit(1000)
+mega  = SIUnit.Unit(1e6)
+giga  = SIUnit.Unit(1e9)
+tera  = SIUnit.Unit(1e12)
 
-meters = Unit.Unit(m=1)
-kilograms = Unit.Unit(kg=1)
-seconds = Unit.Unit(s=1)
-kelvin = Unit.Unit(k=1)
-amperes = Unit.Unit(a=1)
-mols = Unit.Unit(mol=1)
-candelas = Unit.Unit(cd=1)
-radians = Unit.Unit(1)
-steradians = Unit.Unit(1)
+meters = SIUnit.Unit(m=1)
+kilograms = SIUnit.Unit(kg=1)
+seconds = SIUnit.Unit(s=1)
+kelvin = SIUnit.Unit(k=1)
+amperes = SIUnit.Unit(a=1)
+mols = SIUnit.Unit(mol=1)
+candelas = SIUnit.Unit(cd=1)
+radians = SIUnit.Unit(1)
+steradians = SIUnit.Unit(1)
 
 newtons = kilograms * meters / seconds ** 2
 joules = newtons * meters
@@ -47,27 +48,27 @@ decameters  = deca * meters
 hectameters = hecta * meters
 kilometers  = kilo * meters
 
-liters = Unit.Unit(1000) * centimeters ** 3
+liters = SIUnit.Unit(1000) * centimeters ** 3
 milliliters = milli * liters
 microliters = micro * liters
 
 grams = kilograms / kilo
 milligrams = milli * grams
 micrograms = micro * grams
-tonnes = Unit.Unit(1000) * kilograms
+tonnes = SIUnit.Unit(1000) * kilograms
 kilotonnes = kilo * tonnes
 
 nanoseconds  = nano * seconds
 microseconds = micro * seconds
 milliseconds = milli * seconds
-minutes = Unit.Unit(60) * seconds
-hours = Unit.Unit(60) * minutes
-days = Unit.Unit(24) * hours
-weeks = Unit.Unit(7) * days
-years = Unit.Unit(365) * days
+minutes = SIUnit.Unit(60) * seconds
+hours = SIUnit.Unit(60) * minutes
+days = SIUnit.Unit(24) * hours
+weeks = SIUnit.Unit(7) * days
+years = SIUnit.Unit(365) * days
 
 gals = centimeters / seconds ** 2
-g_0 = Unit.Unit(9.80665) * meters / seconds ** 2
+g_0 = SIUnit.Unit(9.80665) * meters / seconds ** 2
 
 millijoules = milli * joules
 kilojoules = kilo * joules
