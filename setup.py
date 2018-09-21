@@ -14,8 +14,7 @@ setup(
     author='Greg Echelberger',
     author_email='greg@keystonetowersystems.com',
     packages=find_packages(exclude=('tests',)),
-    install_requires=[
-    ],
+    install_requires=[],
     python_requires='>=2.7',
     setup_requires=[
         "nose>=1.3.7"

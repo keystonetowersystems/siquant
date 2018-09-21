@@ -2,35 +2,19 @@ import unittest
 
 import numpy as np
 
-from siquant.quantities import Quantity
-from siquant.systems.si import *
+from siquant.units import SIUnit
+from siquant.quantities import ScalarQuantity
+from siquant.systems import si
 
-from siquant.vector import V2
 
 class ScalarQuantityTestCase(unittest.TestCase):
-    pass
-
-class VectorQuantityTestCase(unittest.TestCase):
-    pass
-
-class NumpyQuantityTestCase(unittest.TestCase):
-
-    def assertArrayEqual(self, actual, expected):
-        for a, e in zip(actual, expected):
-            self.assertEqual(a, e)
 
     def test_create_and_extract(self):
+        mass = ScalarQuantity(100, SIUnit.Unit(kg=1))
+        acceleration = ScalarQuantity(1, SIUnit.Unit(m=1, s=-2))
 
-        np_array = np.array([1,2,3,4,5])
-        force_vector = Quantity(np_array, newtons)
+        force = 100 * si.newtons
 
-        self.assertArrayEqual(force_vector.get(), np_array)
-        self.assertArrayEqual(force_vector.get_as(kilonewtons), np_array / 1000)
-
-        kn_vector = force_vector.cvt_to(kilonewtons)
-        self.assertEqual(type(kn_vector), Quantity)
-        self.assertEqual(kn_vector.units, kilonewtons)
-        self.assertArrayEqual(kn_vector.get(), np_array / 1000)
-
-        self.assertEqual(force_vector, kn_vector)
-
+        self.assertEqual(force.get(), 100)
+        self.assertEqual(force.get_as(si.kilonewtons), 0.1)
+        self.assertEqual(force, mass * acceleration)
