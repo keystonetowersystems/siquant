@@ -18,3 +18,18 @@ class ScalarQuantityTestCase(unittest.TestCase):
         self.assertEqual(force.get(), 100)
         self.assertEqual(force.get_as(si.kilonewtons), 0.1)
         self.assertEqual(force, mass * acceleration)
+
+    def test_q_pow(self):
+        pass
+
+    def test_q_mul(self):
+        pass
+
+    def test_q_div(self):
+        pass
+
+    def test_q_add(self):
+        pass
+
+    def test_q_sub(self):
+        pass
