@@ -18,8 +18,8 @@ class SIUnit:
     scale = property(lambda self: self._scale)
     dimensions = property(lambda self: self._dimensions)
 
-    m = property(lambda self: self._dimensions[0])
-    kg = property(lambda self: self._dimensions[1])
+    kg = property(lambda self: self._dimensions[0])
+    m = property(lambda self: self._dimensions[1])
     s = property(lambda self: self._dimensions[2])
     k = property(lambda self: self._dimensions[3])
     a = property(lambda self: self._dimensions[4])
