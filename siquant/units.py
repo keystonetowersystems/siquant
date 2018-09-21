@@ -53,7 +53,7 @@ class SIUnit:
 
     def __rtruediv__(self, other):
         if isinstance(other, numbers.Real):
-            return ScalarQuantity(other, self)
+            return ScalarQuantity(other, ~self)
         return NotImplemented
 
     def __pow__(self, exponent):
