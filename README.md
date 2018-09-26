@@ -69,7 +69,7 @@ circumeference = circle.get_as(si.meters)
 
 # Converters: Quantities at the DMZ
 
-The Quantity type provides a class method ``As(units: Unit)`` which returns a converter function which can be used to 
+The Quantity type provides a class method ``As(units: SIUnit)`` which returns a converter function which can be used to 
 normalize an argument in specific units, raise an error if their dimensionality does not match, and promote a raw
 value to a quantity with the expected units.
 
