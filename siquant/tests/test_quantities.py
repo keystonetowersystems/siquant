@@ -1,7 +1,5 @@
 import unittest
 
-import numpy as np
-
 from siquant.units import SIUnit
 from siquant.quantities import ScalarQuantity
 from siquant.systems import si
