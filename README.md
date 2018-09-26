@@ -65,6 +65,46 @@ diameter = circle.get()
 circumeference = circle.get_as(si.meters)
 ``` 
 
+# Converters: Quantities at the DMZ
+
+The Quantity type provides a class method ``As(units: Unit)`` which returns a converter function which can be used to 
+normalize an argument in specific units, raise an error if their dimensionality does not match, and promote a raw
+value to a quantity with the expected units.
+
+```python
+distance_t = ScalarQuantity.As(si.millimeters)
+def area(value):
+    return distance_t(value) ** 2
+    
+>>>str(area(10.0))
+'100.0 1e-6*m**2'
+>>>str(area(10 * si.millimeters))
+'100.0 1e-6*m**2'
+>>>str(area(10 * si.meters))
+'100000000.0 1e-06*m**2'
+>>>str(area(10 * si.kilograms))
+...
+AssertionError
+```
+
+## Integration with attrs
+
+These converters integrate readily with the attrs library to reduce boilerplate while gaining the benefits of unit
+tracking and validation.
+
+```python
+import attr
+
+from siquant.quantities import ScalarQuantity
+from siquant.systems import si 
+
+@attr.s
+class IsotropicMaterial:
+    elastic_modulus = attr.ib(converter=ScalarQuantity.As(si.gigapascals))
+    shear_modulus = attr.ib(converter=ScalarQuantity.As(si.gigapascals))
+    poissons_ratio = attr.ib(converter=ScalarQuantity.As(si.unity))
+```
+
 # Supporting Vector Quantities
 
 There are a number of vector libraries available, all with different interfaces. As such, a ```VectorQuantity``` is not 
