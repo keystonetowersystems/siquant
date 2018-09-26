@@ -15,8 +15,11 @@ setup(
     author_email='greg@keystonetowersystems.com',
     packages=find_packages(exclude=('tests',)),
     install_requires=[],
-    python_requires='>=2.7',
     tests_require=[ "nose>=1.3.7" ],
+    setup_requires=[
+        'tox',
+        'coverage>=4.5'
+    ],
     test_suite="nose.collector",
     zip_safe=True,
     classifiers=[
