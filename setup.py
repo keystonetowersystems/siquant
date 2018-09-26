@@ -16,9 +16,7 @@ setup(
     packages=find_packages(exclude=('tests',)),
     install_requires=[],
     python_requires='>=2.7',
-    setup_requires=[
-        "nose>=1.3.7"
-    ],
+    tests_require=[ "nose>=1.3.7" ],
     test_suite="nose.collector",
     zip_safe=True,
     classifiers=[
