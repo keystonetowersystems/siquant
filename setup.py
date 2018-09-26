@@ -38,7 +38,7 @@ setup(
     author_email='greg@keystonetowersystems.com',
     packages=find_packages(exclude=('tests',)),
     install_requires=[],
-    tests_require=[ "pytest>=3.8" ],
+    tests_require=[ "pytest>=3.8", "pytest-cov>=2.6.0" ],
     setup_requires=[
         'tox',
         'coverage>=4.5'
