@@ -7,6 +7,14 @@ class Quantity:
     quantity = property(lambda self: self._quantity)
     units = property(lambda self: self._units)
 
+    @classmethod
+    def As(cls, units):
+        def cvt(quantity):
+            if isinstance(quantity, cls):
+                return quantity.cvt_to(units)
+            return cls(quantity, units)
+        return cvt
+
     def __init__(self, quantity, units):
         self._quantity = quantity
         self._units = units
