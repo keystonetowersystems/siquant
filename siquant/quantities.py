@@ -30,7 +30,7 @@ class Quantity:
         return self.__class__(self.get_as(units), units)
 
     def normalized(self):
-        return self.__class__(self._quantity / self._units._scale, self._units.base_units())
+        return self.__class__(self._quantity * self._units._scale, self._units.base_units())
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
