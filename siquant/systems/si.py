@@ -25,6 +25,7 @@ radians = SIUnit.Unit(1)
 steradians = SIUnit.Unit(1)
 
 newtons = kilograms * meters / seconds ** 2
+pascals = newtons / meters ** 2
 joules = newtons * meters
 watts = joules / seconds
 coulombs = amperes * seconds
@@ -70,17 +71,38 @@ years = SIUnit.Unit(365) * days
 gals = centimeters / seconds ** 2
 g_0 = SIUnit.Unit(9.80665) * meters / seconds ** 2
 
+micropascals = micro * pascals
+millipascals = milli * pascals
+kilopascals = kilo * pascals
+megapascals = mega * pascals
+gigapascals = giga * pascals
+
 millijoules = milli * joules
 kilojoules = kilo * joules
 megajoules = mega * joules
 gigajoules = giga * joules
+terajoules = tera * joules
 
 milliwatts = milli * watts
 kilowatts = kilo * watts
 megawatts = mega * watts
 gigawatts = giga * watts
+terawatts = tera * watts
 
+millivolts = milli * volts
+kilovolts = kilo * volts
+megavolts = mega * volts
+gigavolts = giga * volts
+teravolts = tera * volts
+
+micronewtons = micro * newtons
 millinewtons = milli * newtons
 kilonewtons = kilo * newtons
+
+newton_meters = newtons * meters
+kilonewton_meters = kilo * newton_meters
+
+meters_per_second = meters / seconds
+
 
 # etc ...
