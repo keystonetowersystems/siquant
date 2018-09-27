@@ -2,6 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/siquant.svg)](https://badge.fury.io/py/siquant)
 [![Build Status](https://travis-ci.com/keystonetowersystems/siquant.svg?branch=master)](https://travis-ci.com/keystonetowersystems/siquant)
+[![Coverage Status](https://coveralls.io/repos/github/keystonetowersystems/siquant/badge.svg?branch=master)](https://coveralls.io/github/keystonetowersystems/siquant?branch=master)
 
 A library to provide dimensional and quantitative analysis within the SI units system.
 
