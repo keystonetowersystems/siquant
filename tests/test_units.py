@@ -1,94 +1,71 @@
-from siquant.units import SIUnit
+import pytest
+
+from siquant.units import SIUnit, ScalarQuantity
+
+@pytest.fixture
+def unit():
+    return SIUnit.Unit(scale=10, kg=1, m=2, s=3, k=4, a=5, mol=6, cd=7)
+
+def test_unit_accessors(unit):
+    assert unit.scale == 10
+    assert unit.kg == 1
+    assert unit.m == 2
+    assert unit.s == 3
+    assert unit.k == 4
+    assert unit.a == 5
+    assert unit.mol == 6
+    assert unit.cd == 7
 
 
-def test_create_meters():
-    m = SIUnit.Unit(m=1)
-    assert m.scale == 1
-    assert m.m == 1
-    assert m.kg == 0
-    assert m.s == 0
-    assert m.mol == 0
-    assert m.a == 0
-    assert m.k == 0
-    assert m.cd == 0
+def test_unit_cmp(unit):
+    assert unit == unit
+    assert unit != SIUnit.Unit()
 
+def test_unit_mul(unit):
+    original_dimensions = unit.dimensions
 
-def test_create_unitless():
-    pi = SIUnit.Unit(3.14159)
-    assert pi.scale == 3.14159
-    assert pi.m == 0
-    assert pi.kg == 0
-    assert pi.s == 0
-    assert pi.mol == 0
-    assert pi.a == 0
-    assert pi.k == 0
-    assert pi.cd == 0
+    assert unit * SIUnit.Unit(2) == SIUnit(20.0, original_dimensions)
+    assert SIUnit.Unit(2) * unit == SIUnit(20.0, original_dimensions)
+    assert unit * unit == SIUnit.Unit(100.0, kg=2, m=4, s=6, k=8, a=10, mol=12, cd=14)
 
+    assert 2 * unit == ScalarQuantity(2, unit)
+    assert unit * 2 == ScalarQuantity(2, unit)
 
-def test_create_kg():
-    kg = SIUnit.Unit(kg=1)
-    assert kg.scale == 1
-    assert kg.m == 0
-    assert kg.kg == 1
-    assert kg.s == 0
-    assert kg.mol == 0
-    assert kg.a == 0
-    assert kg.k == 0
-    assert kg.cd == 0
+    assert 2 * unit * unit == ScalarQuantity(2, unit * unit)
 
+    unit2 = unit
+    unit2 *= unit2
+    assert unit2 == unit * unit
 
-def test_create_s():
-    s = SIUnit.Unit(s=1)
-    assert s.scale == 1
-    assert s.m == 0
-    assert s.kg == 0
-    assert s.s == 1
-    assert s.mol == 0
-    assert s.a == 0
-    assert s.k == 0
-    assert s.cd == 0
+def test_unit_div(unit):
+    original_dimensions = unit.dimensions
+    inverted_unit = SIUnit.Unit(1 / 10, kg=-1, m=-2, s=-3, k=-4, a=-5, mol=-6, cd=-7)
+    assert unit / SIUnit.Unit(2) == SIUnit(5, original_dimensions)
+    assert SIUnit.Unit(2) / unit == SIUnit(2 / 10, inverted_unit._dimensions)
+    assert unit / unit == SIUnit.Unit(1)
 
+    assert 2 / unit == ScalarQuantity(2, inverted_unit)
+    assert unit / 2 == ScalarQuantity(1 / 2, unit)
 
-def test_create_mol():
-    pass
+    assert unit / 2 / unit == ScalarQuantity(1 / 2, SIUnit.Unit(1))
 
+    unit /= unit
+    assert unit == SIUnit.Unit(1)
 
-def test_create_a():
-    pass
+def test_unit_base_units(unit):
+    assert unit.base_units() == unit / SIUnit.Unit(unit.scale)
 
+def test_unit_pow(unit):
+    assert unit ** 2 == unit * unit
+    assert unit ** 3 == unit * unit * unit
+    assert unit ** -1 == SIUnit.Unit(1) / unit
+    assert unit ** -2 == SIUnit.Unit(1) / unit / unit
 
-def test_create_k():
-    pass
+    with pytest.raises(TypeError):
+        unit = unit ** unit
 
-
-def test_create_cd():
-    pass
-
-
-def test_mul_div_unit():
-    m = SIUnit.Unit(m=1)
-    speed = m / SIUnit.Unit(s=1)
-    assert speed.m == 1
-    assert speed.s == -1
-
-    mm = m / SIUnit.Unit(1000)
-    assert mm.scale == 1 / 1000
-    assert mm.m == 1
-
-    assert m == SIUnit.Unit(1000) * mm
-
-
-def test_pow_unit():
-    pass
-
-
-def test_eq_unit():
-    pass
-
-
-def test_compatible_unit():
-    pass
-
-
-def test_base_units():
-    pass
+def test_unit_compatible(unit):
+    assert unit.compatible(unit)
+    assert unit.compatible(SIUnit.Unit(2) * unit)
+    assert not unit.compatible(unit * unit)
+    assert not unit.compatible(SIUnit.Unit(1))

@@ -26,3 +26,6 @@ def test_q_add():
 
 def test_q_sub():
     pass
+
+def test_q_converters():
+    pass

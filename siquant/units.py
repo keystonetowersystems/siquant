@@ -1,7 +1,6 @@
 import numbers
 
-from siquant.dimensions import SIDimensions, dim_str, dim_pow, dim_mul, dim_div
-
+from .dimensions import SIDimensions, dim_str, dim_pow, dim_mul, dim_div
 from .quantities import ScalarQuantity
 
 class SIUnit:
@@ -12,6 +11,8 @@ class SIUnit:
         return SIUnit(scale, SIDimensions(kg=kg, m=m, s=s, k=k, a=a, mol=mol, cd=cd))
 
     def __init__(self, scale, dimensions):
+        if scale <= 0:
+            raise ValueError('SIunit scale must be non-negative.')
         self._scale = scale
         self._dimensions = dimensions
 
@@ -37,11 +38,20 @@ class SIUnit:
             return SIUnit(self._scale * other._scale, dim_mul(self._dimensions, other._dimensions))
         if isinstance(other, numbers.Real):
             return ScalarQuantity(other, self)
+        if isinstance(other, ScalarQuantity):
+            return ScalarQuantity(other.get(), other.units * self)
+        return NotImplemented
+
+    def __imul__(self, other):
+        if isinstance(other, SIUnit):
+            return SIUnit(self._scale * other._scale, dim_mul(self._dimensions, other._dimensions))
         return NotImplemented
 
     def __rmul__(self, other):
         if isinstance(other, numbers.Real):
             return ScalarQuantity(other, self)
+        if isinstance(other, ScalarQuantity):
+            return ScalarQuantity(other.get(), other.units * self)
         return NotImplemented
 
     def __truediv__(self, other):
@@ -49,11 +59,17 @@ class SIUnit:
             return SIUnit(self._scale / other._scale, dim_div(self._dimensions, other._dimensions))
         if isinstance(other, numbers.Real):
             return ScalarQuantity(1 / other, self)
+        if isinstance(other, ScalarQuantity):
+            return ScalarQuantity(other.get(), other.units / self)
         return NotImplemented
+
+    __itruediv__ = __truediv__
 
     def __rtruediv__(self, other):
         if isinstance(other, numbers.Real):
             return ScalarQuantity(other, ~self)
+        if isinstance(other, ScalarQuantity):
+            return ScalarQuantity(other.get(), self / other.units)
         return NotImplemented
 
     def __pow__(self, exponent):
