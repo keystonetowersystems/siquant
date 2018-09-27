@@ -85,7 +85,7 @@ class ScalarQuantity(Quantity):
 
     def __lt__(self, other):
         if isinstance(other, ScalarQuantity):
-            return self._units.compatible(other._units) and self._quantity < other.get_as(self._units)
+            return self._quantity < other.get_as(self._units)
         return NotImplemented
 
     def __mul__(self, other):
