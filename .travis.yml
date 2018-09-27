@@ -5,10 +5,8 @@ python:
   - "3.7-dev"
 install:
   - python setup.py install
-  - pip install pytest
-  - pip install pytest-cov
   - pip install python-coveralls
 script:
-  - pytest --cov=./ --cov-report term-missing
+  - python setup.py test -a --cov=./ --cov-report term-missing
 after_success:
   - coveralls
