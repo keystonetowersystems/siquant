@@ -1,5 +1,7 @@
+import pytest
+
 from siquant.units import SIUnit
-from siquant.quantities import ScalarQuantity
+from siquant.quantities import ScalarQuantity, UnitMismatchError
 from siquant.systems import si
 
 def test_create_and_extract():
@@ -12,20 +14,197 @@ def test_create_and_extract():
     assert force.get_as(si.kilonewtons) == 0.1
     assert force == mass * acceleration
 
+def test_q_compatible():
+    dist1 = 1 * si.meters
+    dist2 = 1 * si.millimeters
+    area = 1 * si.meters ** 2
+    assert dist1.compatible(dist2)
+    assert dist2.compatible(dist1)
+    assert not dist1.compatible(area)
+    assert not area.compatible(dist1)
+
+def test_q_eq_ne():
+    dist1 = 1 * si.meters
+    dist2 = 1000 * si.millimeters
+    dist3 = 1 * si.kilometers
+    area = 1 * si.meters ** 2
+
+    assert dist1 == dist2
+    assert dist2 == dist1
+
+    assert dist1 != dist3
+    assert dist3 != dist1
+
+    assert not area == dist1
+    assert not dist1 == area
+
+    assert not dist1 == si.meters
+    assert not si.meters == dist1
+
+    assert area != dist1
+    assert dist1 != area
+
+    assert dist1 != si.meters
+    assert si.meters != dist1
+
+def test_q_ordering():
+    dist1 = 1 * si.meters
+    dist2 = 1000 * si.millimeters
+    dist3 = 1 * si.kilometers
+    dist4 = 1 * si.millimeters
+    area = 1 * si.meters ** 2
+
+    assert dist1 >= dist2
+    assert dist2 <= dist1
+    assert dist1 <= dist2
+    assert dist2 >= dist1
+
+    assert dist3 >= dist1
+    assert dist1 <= dist3
+    assert dist3 > dist1
+    assert dist1 < dist3
+
+    assert dist4 <= dist1
+    assert dist1 >= dist4
+    assert dist4 < dist1
+    assert dist1 > dist4
+
+    with pytest.raises(UnitMismatchError):
+        test = dist1 > area
+    with pytest.raises(UnitMismatchError):
+        test = dist1 >= area
+    with pytest.raises(UnitMismatchError):
+        test = dist1 < area
+    with pytest.raises(UnitMismatchError):
+        test = dist1 <= area
+
+    with pytest.raises(TypeError):
+        test = dist1 > 1
+    with pytest.raises(TypeError):
+        test = dist1 >= 1
+    with pytest.raises(TypeError):
+        test = dist1 < 1
+    with pytest.raises(TypeError):
+        test = dist1 <= 1
+
+def test_q_truth():
+    dist_true = 1 * si.meters
+    dist_false = 0 * si.meters
+    assert dist_true
+    assert not dist_false
+
+def test_q_abs():
+    assert abs(1 * si.meters) == 1 * si.meters
+    assert abs(-1 * si.meters) == 1 * si.meters
+
+def test_q_invert():
+    dist = 1000 * si.millimeters
+    assert ~dist == 1 / 1000 / si.millimeters
+
+def test_q_neg():
+    dist = 1000 * si.millimeters
+    assert -dist == -1000 * si.millimeters
+
 def test_q_pow():
-    pass
+    dist = 1000 * si.millimeters
+    assert dist ** 2 == 1 * si.meters ** 2
+    assert dist ** -1 == 1 * si.meters ** -1
+
+    dist = 100 * si.millimeters ** 2
+    assert dist ** 0.5 == 10 * si.millimeters
+
+    with pytest.raises(TypeError):
+        dist ** dist
+    with pytest.raises(TypeError):
+        dist ** si.meters
 
 def test_q_mul():
-    pass
+    dist = 1000 * si.millimeters
+    assert 2 * dist == 2000 * si.millimeters
+    assert dist * 2 == 2000 * si.millimeters
+    assert dist * dist == 1000 * 1000 * si.millimeters ** 2
+
+    dist *= 2
+    assert dist == 2000 * si.millimeters
+
+    with pytest.raises(TypeError):
+        test = dist * (1, 2)
+    with pytest.raises(TypeError):
+        test = (1, 2) * dist
 
 def test_q_div():
-    pass
+    dist = 1000 * si.millimeters
+    assert 2 / dist == 1 / 500 / si.millimeters
+    assert dist / 2 == 500 * si.millimeters
+    assert dist / dist == 1 * si.unity
+
+    assert dist / si.millimeters == 1000 * si.unity
+    assert si.millimeters / dist == 1 / 1000 * si.unity
+
+    with pytest.raises(TypeError):
+        err = dist / (1, 2)
+    with pytest.raises(TypeError):
+        err = (1, 2) / dist
 
 def test_q_add():
-    pass
+    dist1 = 1 * si.meters
+    dist2 = 1000 * si.millimeters
+    area = dist1 * dist2
+
+    diff1 = dist1 + dist2
+    diff2 = dist2 + dist1
+
+    assert diff1 == 2 * si.meters
+    assert diff1.units == si.meters
+
+    assert diff2 == 2 * si.meters
+    assert diff2.units == si.millimeters
+
+    with pytest.raises(TypeError):
+        dist1 + si.meters
+    with pytest.raises(TypeError):
+        si.meters + dist1
+
+    with pytest.raises(UnitMismatchError):
+        dist1 + area
+    with pytest.raises(UnitMismatchError):
+        area + dist1
+
+    dist1 += dist2
+    assert dist1 == 2 * si.meters
 
 def test_q_sub():
-    pass
+    dist1 = 1 * si.meters
+    dist2 = 1000 * si.millimeters
+    area = dist1 * dist2
+
+    diff1 = dist1 - dist2
+    diff2 = dist2 - dist1
+
+    assert diff1 == 0 * si.meters
+    assert diff1.units == si.meters
+
+    assert diff2 == 0 * si.meters
+    assert diff2.units == si.millimeters
+
+    with pytest.raises(TypeError):
+        dist1 - si.meters
+    with pytest.raises(TypeError):
+        si.meters - dist1
+
+    with pytest.raises(UnitMismatchError):
+        dist1 - area
+    with pytest.raises(UnitMismatchError):
+        area - dist1
+
+    dist1 -= dist2
+    assert dist1 == 0 * si.meters
 
 def test_q_converters():
-    pass
+    cvtr = ScalarQuantity.As(si.meters)
+    assert cvtr(1000) == 1000 * si.meters
+    assert cvtr(1000 * si.meters) == 1000 * si.meters
+    assert cvtr(1000 * si.millimeters) == 1 * si.meters
+
+    with pytest.raises(UnitMismatchError):
+        cvtr(1000 * si.kilograms)
