@@ -60,7 +60,7 @@ class SIUnit:
         if isinstance(other, numbers.Real):
             return ScalarQuantity(1 / other, self)
         if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(other.get(), other.units / self)
+            return ScalarQuantity(1 / other.get(), self / other.units)
         return NotImplemented
 
     __itruediv__ = __truediv__
@@ -69,7 +69,7 @@ class SIUnit:
         if isinstance(other, numbers.Real):
             return ScalarQuantity(other, ~self)
         if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(other.get(), self / other.units)
+            return ScalarQuantity(other.get(), other.units / self)
         return NotImplemented
 
     def __pow__(self, exponent):
