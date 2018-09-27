@@ -1,12 +1,11 @@
 language: python
 python:
-  - "3.5"
   - "3.6"
   - "3.7-dev"
 install:
   - python setup.py install
-  - pip install python-coveralls
+  - pip install tox-travis coveralls
 script:
-  - python setup.py test -a --cov=./ -a --cov-report=term-missing
+  - tox
 after_success:
   - coveralls

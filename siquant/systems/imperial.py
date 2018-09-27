@@ -23,4 +23,4 @@ ounces = pounds / SIUnit.Unit(16)
 stones = SIUnit.Unit(14) * pounds
 tons = SIUnit.Unit(2240) * pounds
 
-#todo: ...
+# todo: other imperial units

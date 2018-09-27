@@ -49,7 +49,6 @@ class Quantity:
     def __neg__(self):
         return self.__class__(-self._quantity, self._units)
 
-
     def __bool__(self):
         return bool(self._quantity)
 

@@ -2,7 +2,6 @@ from siquant.units import SIUnit
 from siquant.quantities import ScalarQuantity
 from siquant.systems import si
 
-
 def test_create_and_extract():
     mass = ScalarQuantity(100, SIUnit.Unit(kg=1))
     acceleration = ScalarQuantity(1, SIUnit.Unit(m=1, s=-2))
