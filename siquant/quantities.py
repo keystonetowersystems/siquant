@@ -1,6 +1,11 @@
 import numbers
 from functools import total_ordering
 
+class UnitMismatchError(ValueError):
+
+    def __init__(self, u1, u2):
+        super().__init__("Unit Mismatch: %s, %s" % (u1, u2))
+
 class Quantity:
     __slots__ = ('_quantity', '_units')
 
@@ -23,14 +28,17 @@ class Quantity:
         return self._quantity
 
     def get_as(self, units):
-        assert (self._units.compatible(units))
+        if not self._units.compatible(units):
+            raise UnitMismatchError(self._units, units)
         return self._units._scale / units._scale * self._quantity
 
     def cvt_to(self, units):
         return self.__class__(self.get_as(units), units)
 
-    def normalized(self):
-        return self.__class__(self._quantity * self._units._scale, self._units.base_units())
+    def compatible(self, quantity):
+        if not isinstance(quantity, Quantity):
+            raise TypeError('Expected Quantity Type; Actual: %r' % quantity)
+        return self._units.compatible(quantity._units)
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
