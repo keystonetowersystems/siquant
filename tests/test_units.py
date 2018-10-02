@@ -12,6 +12,16 @@ def test_unit_create():
     with pytest.raises(ValueError):
         SIUnit.Unit(-1, kg=1, m=2, s=3, k=4, a=5, mol=6, cd=7)
 
+def test_hash(unit):
+
+    other_scale = SIUnit(1, unit.dimensions)
+    assert hash(unit) != hash(other_scale)
+    assert hash(unit) == hash(SIUnit.Unit(10) * other_scale)
+
+    other_dims = SIUnit.Unit(10)
+    assert hash(unit) != other_dims
+
+
 def test_unit_accessors(unit):
     assert unit.scale == 10
     assert unit.kg == 1

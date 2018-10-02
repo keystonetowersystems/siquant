@@ -70,6 +70,9 @@ class Quantity:
             return not self._units.compatible(other._units) or self._quantity != other.get_as(self._units)
         return NotImplemented
 
+    def __hash__(self):
+        return hash((self._quantity * self._units._scale, self._units.base_units()))
+
     def __str__(self):
         return '%s %s' % (self._quantity, self._units)
 

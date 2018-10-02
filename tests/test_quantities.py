@@ -1,5 +1,7 @@
 import pytest
 
+import math
+
 from siquant.units import SIUnit
 from siquant.quantities import ScalarQuantity, UnitMismatchError
 from siquant.systems import si
@@ -13,6 +15,15 @@ def test_create_and_extract():
     assert force.get() == 100
     assert force.get_as(si.kilonewtons) == 0.1
     assert force == mass * acceleration
+
+def test_hash():
+    angle1 = 2 * math.pi * si.radians
+    angle2 = 360 * si.degrees
+
+    assert hash(angle1) == hash(angle2)
+
+    circumference = angle1 * 1 * si.meters
+    assert hash(circumference) != hash(angle1)
 
 def test_q_compatible():
     dist1 = 1 * si.meters

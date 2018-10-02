@@ -1,3 +1,5 @@
+import math
+
 from siquant.units import SIUnit
 from siquant.quantities import Quantity
 
@@ -23,6 +25,8 @@ mols = SIUnit.Unit(mol=1)
 candelas = SIUnit.Unit(cd=1)
 radians = SIUnit.Unit(1)
 steradians = SIUnit.Unit(1)
+
+degrees = SIUnit.Unit(math.pi / 180) * radians
 
 newtons = kilograms * meters / seconds ** 2
 pascals = newtons / meters ** 2

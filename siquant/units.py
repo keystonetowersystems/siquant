@@ -96,6 +96,9 @@ class SIUnit:
             return self._scale != other._scale or self._dimensions != other._dimensions
         return NotImplemented
 
+    def __hash__(self):
+        return hash((self._scale, self._dimensions))
+
     def __str__(self):
         return '%g*%s' % (self._scale, dim_str(self._dimensions))
 

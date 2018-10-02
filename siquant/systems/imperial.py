@@ -1,5 +1,7 @@
 from siquant.units import SIUnit
 
+from .si import pascals
+
 inches = SIUnit.Unit(25.4 / 1000, m=1)
 thousandths = inches / SIUnit.Unit(1000)
 feet = SIUnit.Unit(12) * inches
@@ -22,5 +24,8 @@ pounds = SIUnit.Unit(0.45359237, kg=1)
 ounces = pounds / SIUnit.Unit(16)
 stones = SIUnit.Unit(14) * pounds
 tons = SIUnit.Unit(2240) * pounds
+
+psi = SIUnit.Unit(6894.75729) * pascals
+ksi = SIUnit.Unit(1000) * psi
 
 # todo: other imperial units
