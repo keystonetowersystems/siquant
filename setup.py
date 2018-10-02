@@ -29,7 +29,7 @@ def readme():
 
 setup(
     name='siquant',
-    version='2.3.0.dev1',
+    version='2.3.0',
     description='SI units and quantities library',
     long_description=readme(),
     long_description_content_type="text/markdown",
