@@ -1,20 +1,20 @@
 import math
 
 from siquant.units import SIUnit
-from siquant.quantities import Quantity
 
-nano  = SIUnit.Unit(1 / 1e9)
+
+nano = SIUnit.Unit(1 / 1e9)
 micro = SIUnit.Unit(1 / 1e6)
 milli = SIUnit.Unit(1 / 1000)
 centi = SIUnit.Unit(1 / 100)
-deci  = SIUnit.Unit(1 / 10)
+deci = SIUnit.Unit(1 / 10)
 unity = SIUnit.Unit(1)
-deca  = SIUnit.Unit(10)
+deca = SIUnit.Unit(10)
 hecta = SIUnit.Unit(100)
-kilo  = SIUnit.Unit(1000)
-mega  = SIUnit.Unit(1e6)
-giga  = SIUnit.Unit(1e9)
-tera  = SIUnit.Unit(1e12)
+kilo = SIUnit.Unit(1000)
+mega = SIUnit.Unit(1e6)
+giga = SIUnit.Unit(1e9)
+tera = SIUnit.Unit(1e12)
 
 meters = SIUnit.Unit(m=1)
 kilograms = SIUnit.Unit(kg=1)
@@ -44,14 +44,14 @@ lumens = candelas * steradians
 lux = lumens / meters ** 2
 becquerels = ~seconds
 
-nanometers  = nano * meters
+nanometers = nano * meters
 micrometers = micro * meters
 millimeters = milli * meters
 centimeters = centi * meters
-decimeters  = deci * meters
-decameters  = deca * meters
+decimeters = deci * meters
+decameters = deca * meters
 hectameters = hecta * meters
-kilometers  = kilo * meters
+kilometers = kilo * meters
 
 liters = SIUnit.Unit(1000) * centimeters ** 3
 milliliters = milli * liters
@@ -63,7 +63,7 @@ micrograms = micro * grams
 tonnes = SIUnit.Unit(1000) * kilograms
 kilotonnes = kilo * tonnes
 
-nanoseconds  = nano * seconds
+nanoseconds = nano * seconds
 microseconds = micro * seconds
 milliseconds = milli * seconds
 minutes = SIUnit.Unit(60) * seconds

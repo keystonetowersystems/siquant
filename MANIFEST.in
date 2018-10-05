@@ -1,0 +1,7 @@
+include .bumpversion.cfg
+include .coveragerc
+include .pre-commit-config.yaml
+include LICENSE
+include tox.ini
+recursive-include scripts *.sh
+recursive-include tests *.py

@@ -1,10 +1,11 @@
 import numbers
 
-from .dimensions import SIDimensions, dim_str, dim_pow, dim_mul, dim_div
+from .dimensions import SIDimensions, dim_div, dim_mul, dim_pow, dim_str
 from .quantities import ScalarQuantity
 
+
 class SIUnit:
-    __slots__ = ('_scale', '_dimensions')
+    __slots__ = ("_scale", "_dimensions")
 
     @staticmethod
     def Unit(scale=1.0, kg=0, m=0, s=0, k=0, a=0, mol=0, cd=0):
@@ -12,7 +13,7 @@ class SIUnit:
 
     def __init__(self, scale, dimensions):
         if scale <= 0:
-            raise ValueError('SIunit scale must be non-negative.')
+            raise ValueError("SIunit scale must be positive.")
         self._scale = scale
         self._dimensions = dimensions
 
@@ -35,7 +36,9 @@ class SIUnit:
 
     def __mul__(self, other):
         if isinstance(other, SIUnit):
-            return SIUnit(self._scale * other._scale, dim_mul(self._dimensions, other._dimensions))
+            return SIUnit(
+                self._scale * other._scale, dim_mul(self._dimensions, other._dimensions)
+            )
         if isinstance(other, numbers.Real):
             return ScalarQuantity(other, self)
         if isinstance(other, ScalarQuantity):
@@ -44,7 +47,9 @@ class SIUnit:
 
     def __imul__(self, other):
         if isinstance(other, SIUnit):
-            return SIUnit(self._scale * other._scale, dim_mul(self._dimensions, other._dimensions))
+            return SIUnit(
+                self._scale * other._scale, dim_mul(self._dimensions, other._dimensions)
+            )
         return NotImplemented
 
     def __rmul__(self, other):
@@ -56,7 +61,9 @@ class SIUnit:
 
     def __truediv__(self, other):
         if isinstance(other, SIUnit):
-            return SIUnit(self._scale / other._scale, dim_div(self._dimensions, other._dimensions))
+            return SIUnit(
+                self._scale / other._scale, dim_div(self._dimensions, other._dimensions)
+            )
         if isinstance(other, numbers.Real):
             return ScalarQuantity(1 / other, self)
         if isinstance(other, ScalarQuantity):
@@ -74,17 +81,11 @@ class SIUnit:
 
     def __pow__(self, exponent):
         if isinstance(exponent, numbers.Real):
-            return SIUnit(
-                self._scale ** exponent,
-                dim_pow(self._dimensions, exponent)
-            )
+            return SIUnit(self._scale ** exponent, dim_pow(self._dimensions, exponent))
         return NotImplemented
 
     def __invert__(self):
-        return SIUnit(
-            1 / self._scale,
-            dim_div(SIDimensions(), self._dimensions)
-        )
+        return SIUnit(1 / self._scale, dim_div(SIDimensions(), self._dimensions))
 
     def __eq__(self, other):
         if isinstance(other, SIUnit):
@@ -100,10 +101,7 @@ class SIUnit:
         return hash((self._scale, self._dimensions))
 
     def __str__(self):
-        return '%g*%s' % (self._scale, dim_str(self._dimensions))
+        return "%g*%s" % (self._scale, dim_str(self._dimensions))
 
     def __repr__(self):
-        return 'SIUnit(%f, %r)' % (
-            self._scale,
-            self._dimensions
-        )
+        return "SIUnit(%f, %r)" % (self._scale, self._dimensions)

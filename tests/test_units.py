@@ -1,16 +1,19 @@
 import pytest
 
-from siquant.units import SIUnit, ScalarQuantity
+from siquant.units import ScalarQuantity, SIUnit
+
 
 @pytest.fixture
 def unit():
     return SIUnit.Unit(scale=10, kg=1, m=2, s=3, k=4, a=5, mol=6, cd=7)
+
 
 def test_unit_create():
     with pytest.raises(ValueError):
         SIUnit.Unit(0, kg=1, m=2, s=3, k=4, a=5, mol=6, cd=7)
     with pytest.raises(ValueError):
         SIUnit.Unit(-1, kg=1, m=2, s=3, k=4, a=5, mol=6, cd=7)
+
 
 def test_hash(unit):
 
@@ -40,6 +43,7 @@ def test_unit_cmp(unit):
     assert not unit == object()
     assert unit != object()
 
+
 def test_unit_mul(unit):
     original_dimensions = unit.dimensions
 
@@ -64,6 +68,7 @@ def test_unit_mul(unit):
     with pytest.raises(TypeError):
         unit *= None
 
+
 def test_unit_div(unit):
     original_dimensions = unit.dimensions
     inverted_unit = SIUnit.Unit(1 / 10, kg=-1, m=-2, s=-3, k=-4, a=-5, mol=-6, cd=-7)
@@ -75,7 +80,9 @@ def test_unit_div(unit):
     assert unit / 2 == ScalarQuantity(1 / 2, unit)
 
     assert unit / 2 / unit == ScalarQuantity(1 / 2, SIUnit.Unit(1))
-    assert unit / (2 / unit) == ScalarQuantity(50, SIUnit.Unit(1, 2, 4, 6, 8, 10, 12, 14))
+    assert unit / (2 / unit) == ScalarQuantity(
+        50, SIUnit.Unit(1, 2, 4, 6, 8, 10, 12, 14)
+    )
 
     unit /= unit
     assert unit == SIUnit.Unit(1)
@@ -87,8 +94,10 @@ def test_unit_div(unit):
     with pytest.raises(TypeError):
         unit /= None
 
+
 def test_unit_base_units(unit):
     assert unit.base_units() == unit / SIUnit.Unit(unit.scale)
+
 
 def test_unit_pow(unit):
     assert unit ** 2 == unit * unit
@@ -99,8 +108,10 @@ def test_unit_pow(unit):
     with pytest.raises(TypeError):
         unit = unit ** unit
 
+
 def test_unit_invert(unit):
     assert ~unit == SIUnit.Unit(1 / 10, kg=-1, m=-2, s=-3, k=-4, a=-5, mol=-6, cd=-7)
+
 
 def test_unit_compatible(unit):
     assert unit.compatible(unit)

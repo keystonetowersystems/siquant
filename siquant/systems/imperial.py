@@ -2,6 +2,7 @@ from siquant.units import SIUnit
 
 from .si import pascals
 
+
 inches = SIUnit.Unit(25.4 / 1000, m=1)
 thousandths = inches / SIUnit.Unit(1000)
 feet = SIUnit.Unit(12) * inches

@@ -1,13 +1,11 @@
 import numbers
 from functools import total_ordering
 
-class UnitMismatchError(ValueError):
+from .exceptions import UnitMismatchError, unexpected_type_error
 
-    def __init__(self, u1, u2):
-        super().__init__("Unit Mismatch: %s, %s" % (u1, u2))
 
 class Quantity:
-    __slots__ = ('_quantity', '_units')
+    __slots__ = ("_quantity", "_units")
 
     quantity = property(lambda self: self._quantity)
     units = property(lambda self: self._units)
@@ -18,6 +16,7 @@ class Quantity:
             if isinstance(quantity, cls):
                 return quantity.cvt_to(units)
             return cls(quantity, units)
+
         return cvt
 
     def __init__(self, quantity, units):
@@ -35,21 +34,25 @@ class Quantity:
     def cvt_to(self, units):
         return self.__class__(self.get_as(units), units)
 
-    def compatible(self, quantity):
-        if not isinstance(quantity, Quantity):
-            raise TypeError('Expected Quantity Type; Actual: %r' % quantity)
-        return self._units.compatible(quantity._units)
+    def compatible(self, other):
+        if not isinstance(other, Quantity):
+            raise unexpected_type_error("other", Quantity, other)
+        return self._units.compatible(other._units)
 
     def __add__(self, other):
         if isinstance(other, self.__class__):
-            return self.__class__(self._quantity + other.get_as(self._units), self._units)
+            return self.__class__(
+                self._quantity + other.get_as(self._units), self._units
+            )
         return NotImplemented
 
     __iadd__ = __add__
 
     def __sub__(self, other):
         if isinstance(other, self.__class__):
-            return self.__class__(self._quantity - other.get_as(self._units), self._units)
+            return self.__class__(
+                self._quantity - other.get_as(self._units), self._units
+            )
         return NotImplemented
 
     __isub__ = __sub__
@@ -62,22 +65,27 @@ class Quantity:
 
     def __eq__(self, other):
         if isinstance(other, type(self)):
-            return self._units.compatible(other._units) and self._quantity == other.get_as(self._units)
+            return self._units.compatible(
+                other._units
+            ) and self._quantity == other.get_as(self._units)
         return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, type(self)):
-            return not self._units.compatible(other._units) or self._quantity != other.get_as(self._units)
+            return not self._units.compatible(
+                other._units
+            ) or self._quantity != other.get_as(self._units)
         return NotImplemented
 
     def __hash__(self):
         return hash((self._quantity * self._units._scale, self._units.base_units()))
 
     def __str__(self):
-        return '%s %s' % (self._quantity, self._units)
+        return "%s %s" % (self._quantity, self._units)
 
     def __repr__(self):
-        return '%s(%r, %r)' % (self.__class__.__name__, self._quantity, self._units)
+        return "%s(%r, %r)" % (self.__class__.__name__, self._quantity, self._units)
+
 
 @total_ordering
 class ScalarQuantity(Quantity):
@@ -93,7 +101,9 @@ class ScalarQuantity(Quantity):
 
     def __mul__(self, other):
         if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(self._quantity * other._quantity, self._units * other._units)
+            return ScalarQuantity(
+                self._quantity * other._quantity, self._units * other._units
+            )
         if isinstance(other, numbers.Real):
             return ScalarQuantity(self._quantity * other, self._units)
         return NotImplemented
@@ -107,7 +117,9 @@ class ScalarQuantity(Quantity):
 
     def __truediv__(self, other):
         if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(self._quantity / other._quantity, self._units / other._units)
+            return ScalarQuantity(
+                self._quantity / other._quantity, self._units / other._units
+            )
         if isinstance(other, numbers.Real):
             return ScalarQuantity(self._quantity / other, self._units)
         return NotImplemented
