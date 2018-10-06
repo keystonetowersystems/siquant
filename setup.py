@@ -18,7 +18,7 @@ EXTRAS_REQUIRE["dev"] = (
 
 setup(
     name="siquant",
-    version="3.0.4",
+    version="3.0.5",
     description="SI units and quantities library",
     long_description=readme(),
     url="https://github.com/keystonetowersystems/siquant",
