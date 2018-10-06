@@ -2,12 +2,13 @@ import numbers
 
 from .dimensions import SIDimensions, dim_div, dim_mul, dim_pow, dim_str
 from .quantities import ScalarQuantity
-from .util import immutable
+from .util import immutable, flyweight
 
 
+@flyweight
 @immutable
 class SIUnit:
-    __slots__ = ("scale", "dimensions")
+    __slots__ = ("scale", "dimensions", "__weakref__")
 
     @staticmethod
     def Unit(scale=1.0, kg=0, m=0, s=0, k=0, a=0, mol=0, cd=0):
