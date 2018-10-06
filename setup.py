@@ -1,8 +1,11 @@
+import os.path as path
+
 from setuptools import find_packages, setup
 
 
 def readme():
-    with open("README.md") as f:
+    filepath = path.join(path.dirname(path.realpath(__file__)), "README.rst")
+    with open(filepath) as f:
         return f.read()
 
 
@@ -18,7 +21,6 @@ setup(
     version="3.0.4",
     description="SI units and quantities library",
     long_description=readme(),
-    long_description_content_type="text/markdown",
     url="https://github.com/keystonetowersystems/siquant",
     author="Greg Echelberger",
     author_email="greg@keystonetowersystems.com",

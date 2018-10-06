@@ -3,5 +3,6 @@ include .coveragerc
 include .pre-commit-config.yaml
 include LICENSE
 include tox.ini
+include README.rst
 recursive-include scripts *.sh
 recursive-include tests *.py
