@@ -15,7 +15,7 @@ EXTRAS_REQUIRE["dev"] = (
 
 setup(
     name="siquant",
-    version="3.0.3",
+    version="3.0.4",
     description="SI units and quantities library",
     long_description=readme(),
     long_description_content_type="text/markdown",
