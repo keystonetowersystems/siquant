@@ -28,6 +28,7 @@ steradians = SIUnit.Unit(1)
 
 degrees = SIUnit.Unit(math.pi / 180) * radians
 
+hertz = unity / seconds
 newtons = kilograms * meters / seconds ** 2
 pascals = newtons / meters ** 2
 joules = newtons * meters
@@ -43,6 +44,9 @@ henrys = webers / amperes
 lumens = candelas * steradians
 lux = lumens / meters ** 2
 becquerels = ~seconds
+sieverts = grays = joules / kilograms
+katals = mols / seconds
+
 
 nanometers = nano * meters
 micrometers = micro * meters

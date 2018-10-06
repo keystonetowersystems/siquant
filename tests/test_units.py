@@ -73,7 +73,7 @@ def test_unit_div(unit):
     original_dimensions = unit.dimensions
     inverted_unit = SIUnit.Unit(1 / 10, kg=-1, m=-2, s=-3, k=-4, a=-5, mol=-6, cd=-7)
     assert unit / SIUnit.Unit(2) == SIUnit(5, original_dimensions)
-    assert SIUnit.Unit(2) / unit == SIUnit(2 / 10, inverted_unit._dimensions)
+    assert SIUnit.Unit(2) / unit == SIUnit(2 / 10, inverted_unit.dimensions)
     assert unit / unit == SIUnit.Unit(1)
 
     assert 2 / unit == ScalarQuantity(2, inverted_unit)

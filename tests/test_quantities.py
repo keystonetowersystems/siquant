@@ -2,9 +2,20 @@ import math
 
 import pytest
 
-from siquant.quantities import ScalarQuantity, UnitMismatchError
+import siquant.dimensions as dims
+
+from siquant.exceptions import UnitMismatchError, ImmutabilityError
+from siquant.quantities import ScalarQuantity
 from siquant.systems import si
 from siquant.units import SIUnit
+
+
+def test_immutability():
+    mass = 100 * si.kilograms
+    with pytest.raises(ImmutabilityError):
+        mass.quantity = 10
+    with pytest.raises(ImmutabilityError):
+        del mass.quantity
 
 
 def test_create_and_extract():
@@ -13,7 +24,7 @@ def test_create_and_extract():
 
     force = 100 * si.newtons
 
-    assert force.get() == 100
+    assert force.quantity == 100
     assert force.get_as(si.kilonewtons) == 0.1
     assert force == mass * acceleration
 
@@ -172,6 +183,12 @@ def test_q_div():
         dist / (1, 2)
     with pytest.raises(TypeError):
         (1, 2) / dist
+
+
+def test_dimensionality():
+    dist = 1000 * si.millimeters
+    assert dist.is_of(dims.distance)
+    assert not dist.is_of(dims.area)
 
 
 def test_q_add():

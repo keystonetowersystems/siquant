@@ -8,6 +8,13 @@ class UnitMismatchError(ValueError):
         super().__init__("Unit Mismatch: %s, %s" % (u1, u2), u1, u2)
 
 
+class ImmutabilityError(AttributeError):
+    def __init__(self, instance, name):
+        super().__init__(
+            "Can't mutate attribute '{name}'.".format(name=name), instance, name
+        )
+
+
 def unexpected_type_error(arg_name, expected_type, actual_value):
     return TypeError(
         "'{name}' must be {type!r} (got {value!r} that is a "
