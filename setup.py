@@ -10,7 +10,7 @@ def readme():
 
 
 INSTALL_REQUIRES = []
-EXTRAS_REQUIRE = {"docs": ["sphinx"], "tests": ["coverage", "pytest"]}
+EXTRAS_REQUIRE = {"docs": ["sphinx"], "tests": ["coverage", "pytest", "numpy"]}
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["docs"] + EXTRAS_REQUIRE["tests"] + ["pre-commit"]
 )
@@ -18,8 +18,8 @@ EXTRAS_REQUIRE["dev"] = (
 
 setup(
     name="siquant",
-    version="3.0.5",
-    description="SI units and quantities library",
+    version="4.0.0b1",
+    description="Dimensional Analysis and Unit Tracking Library",
     long_description=readme(),
     url="https://github.com/keystonetowersystems/siquant",
     author="Greg Echelberger",

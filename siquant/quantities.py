@@ -5,20 +5,37 @@ from .exceptions import UnitMismatchError, unexpected_type_error
 from .util import immutable
 
 
+def make(quantity, units):
+    return units.factory(quantity, units)
+
+
+def converter(units):
+    def _converter(value):
+        if isinstance(value, Quantity):
+            return value.cvt_to(units)
+        return make(value, units)
+
+    return _converter
+
+
+def is_of(dimensions):
+    def _validator(value):
+        if not isinstance(value, Quantity):
+            return False
+        return value.is_of(dimensions)
+
+    return _validator
+
+
 @immutable
+@total_ordering
 class Quantity:
     __slots__ = ("quantity", "units")
 
-    @classmethod
-    def As(cls, units):
-        def cvt(quantity):
-            if isinstance(quantity, cls):
-                return quantity.cvt_to(units)
-            return cls(quantity, units)
-
-        return cvt
-
     def __init__(self, quantity, units):
+        if isinstance(quantity, Quantity):
+            units = quantity.units * units
+            quantity = quantity.quantity
         super().__setattr__("quantity", quantity)
         super().__setattr__("units", units)
 
@@ -26,12 +43,14 @@ class Quantity:
         return self.units.dimensions == dimensions
 
     def get_as(self, units):
+        if self.units == units:
+            return self.quantity
         if not self.units.compatible(units):
             raise UnitMismatchError(self.units, units)
         return self.units.scale / units.scale * self.quantity
 
-    def cvt_to(self, units):
-        return self.__class__(self.get_as(units), units)
+    def cvt_to(quantity, units):
+        return make(quantity.get_as(units), units)
 
     def compatible(self, other):
         if not isinstance(other, Quantity):
@@ -39,34 +58,34 @@ class Quantity:
         return self.units.compatible(other.units)
 
     def __add__(self, other):
-        if isinstance(other, self.__class__):
-            return self.__class__(self.quantity + other.get_as(self.units), self.units)
+        if isinstance(other, Quantity):
+            return make(self.quantity + other.get_as(self.units), self.units)
         return NotImplemented
 
     __iadd__ = __add__
 
     def __sub__(self, other):
-        if isinstance(other, self.__class__):
-            return self.__class__(self.quantity - other.get_as(self.units), self.units)
+        if isinstance(other, Quantity):
+            return make(self.quantity - other.get_as(self.units), self.units)
         return NotImplemented
 
     __isub__ = __sub__
 
     def __neg__(self):
-        return self.__class__(-self.quantity, self.units)
+        return make(-self.quantity, self.units)
 
     def __bool__(self):
         return bool(self.quantity)
 
     def __eq__(self, other):
-        if isinstance(other, type(self)):
+        if isinstance(other, Quantity):
             return self.units.compatible(other.units) and self.quantity == other.get_as(
                 self.units
             )
         return NotImplemented
 
     def __ne__(self, other):
-        if isinstance(other, type(self)):
+        if isinstance(other, Quantity):
             return not self.units.compatible(
                 other.units
             ) or self.quantity != other.get_as(self.units)
@@ -81,56 +100,38 @@ class Quantity:
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__, self.quantity, self.units)
 
-
-@immutable
-@total_ordering
-class ScalarQuantity(Quantity):
-    __slots__ = ()
-
     def __abs__(self):
-        return ScalarQuantity(abs(self.quantity), self.units)
+        return make(abs(self.quantity), self.units)
 
     def __lt__(self, other):
-        if isinstance(other, ScalarQuantity):
+        if isinstance(other, Quantity):
             return self.quantity < other.get_as(self.units)
         return NotImplemented
 
-    def __mul__(self, other):
-        if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(
-                self.quantity * other.quantity, self.units * other.units
-            )
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(self.quantity * other, self.units)
-        return NotImplemented
+    def __mul__(self, rhs):
+        if isinstance(rhs, Quantity):
+            return make(self.quantity * rhs.quantity, self.units * rhs.units)
+        return make(self.quantity * rhs, self.units)
 
     __imul__ = __mul__
 
-    def __rmul__(self, other):
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(other * self.quantity, self.units)
-        return NotImplemented
+    def __rmul__(self, lhs):
+        return make(lhs * self.quantity, self.units)
 
-    def __truediv__(self, other):
-        if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(
-                self.quantity / other.quantity, self.units / other.units
-            )
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(self.quantity / other, self.units)
-        return NotImplemented
+    def __truediv__(self, rhs):
+        if isinstance(rhs, Quantity):
+            return make(self.quantity / rhs.quantity, self.units / rhs.units)
+        return make(self.quantity / rhs, self.units)
 
     __itruediv__ = __truediv__
 
-    def __rtruediv__(self, other):
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(other / self.quantity, ~self.units)
-        return NotImplemented
+    def __rtruediv__(self, lhs):
+        return Quantity(lhs / self.quantity, ~self.units)
 
     def __pow__(self, exponent):
         if isinstance(exponent, numbers.Real):
-            return ScalarQuantity(self.quantity ** exponent, self.units ** exponent)
+            return make(self.quantity ** exponent, self.units ** exponent)
         return NotImplemented
 
     def __invert__(self):
-        return ScalarQuantity(1 / self.quantity, ~self.units)
+        return make(1 / self.quantity, ~self.units)

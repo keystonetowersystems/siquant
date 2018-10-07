@@ -119,3 +119,26 @@ Alternatively they can be derived:
     >>> rpm = si.unity / si.minutes
     >>> rpm
     SIUnit(0.016667, (0, 0, -1, 0, 0, 0, 0))
+
+---------------------------
+Operations for Custom Types
+---------------------------
+
+.. code-block:: pycon
+
+    >>> import numpy as np
+    >>> from siquant.quantities import Quantity as Q
+    >>> from siquant.systems import
+
+    >>> def dot_applicator(q_inst : Q, other: Q) -> Tuple[Any, SIUnit]:
+    ...     if not isinstance(q_inst.quantity, np.ndarray):
+    ...         raise TypeError()
+    ...     if not isinstance(other.quantity, np.ndarray):
+    ...         raise TypeError()
+    ...     return (np.dot(q_inst.quantity, other.quantity), q_inst.units * other.units)
+
+    >>> v1 = np.array([1,2,3,4,5]) * si.meters
+    >>> v2 = np.array([1,2,3,4,5]) * si.meters
+    >>> v3 = v1.apply(dot_applicator, v2)
+    >>> v3
+    Quantity(55, SIUnit(1, (0, 2, 0, 0, 0, 0, 0))

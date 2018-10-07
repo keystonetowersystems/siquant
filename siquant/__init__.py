@@ -1,3 +1,7 @@
-from .quantities import ScalarQuantity
+from .units import SIUnit
+from .quantities import Quantity
+from .systems import si
 
-__all__ = ["ScalarQuantity"]
+SIUnit.factory = Quantity
+
+__all__ = ("Quantity", "SIUnit", "si")
