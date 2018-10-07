@@ -25,7 +25,8 @@ Dimensional Analysis
 
 .. code-block:: pycon
 
-    >>> from siquant.systems import si
+    >>> from siquant import si
+
     >>> force = 100 * si.kilonewtons
     >>> moment_arm = 50 * si.meters
     >>> torque = force * moment_arm
@@ -46,46 +47,83 @@ Dimensional Analysis
     >>> str(torque.units)
     '1*kg**1*m**2*s**-2'
 
+Some limited imperial units are also provided:
+
+.. code-block:: pycon
+
+    >>> from siquant import imperial, si
+    >>> floor_space = 200 * si.meters ** 2
+    >>> dollars_per_sq_ft = 250 / imperial.feet ** 2
+    >>> price = floor_space * dollars_per_sq_ft
+    >>> round(price.get_as(si.unity), 2)
+    538195.52
+
 Validation
 ==========
 
 .. code-block:: pycon
 
-    >>> from siquant.dimensions import force, area, stress
-    >>> from siquant.systems import si
+    >>> from siquant.dimensions import force_t, area_t, stress_t
+    >>> from siquant import si
 
-    >>> def normal_stress(force_q, area_q):
-    ...     assert force_q.is_of(force)
-    ...     assert area_q.is_of(area)
-    ...     return force_q / area_q
+    >>> def normal_stress(force, area):
+    ...     assert force.is_of(force_t)
+    ...     assert area.is_of(area_t)
+    ...     return force / area
 
-    >>> stress_q = normal_stress(1 * si.newtons, 1 * si.meters ** 2)
-    >>> stress_q.is_of(stress)
+    >>> stress = normal_stress(1 * si.newtons, 1 * si.meters ** 2)
+    >>> stress.is_of(stress_t)
     True
-    >>> stress_q.is_of(area)
+    >>> stress.is_of(area_t)
+    False
+
+Alternatively, the desired dimensionality can be captured in a validator:
+
+.. code-block:: pycon
+
+    >>> from siquant import si, is_of
+    >>> from siquant.dimensions import distance_t
+
+    >>> distance_validator = is_of(distance_t)
+    >>> distance_validator(10 * si.meters)
+    True
+    >>> distance_validator(10 * si.millimeters)
+    True
+    >>> distance_validator(10)
+    False
+    >>> distance_validator(10 * si.newtons)
     False
 
 Sometimes you might want to check for dimensions that aren't provided by default.
 
 .. code-block:: pycon
 
+    >>> from siquant import si
     >>> from siquant.dimensions import SIDimensions
-    >>> from siquant.systems import si
 
     >>> new_dim = SIDimensions(kg=1, m=1, s=1, k=1, a=1, mol=1, cd=1)
-    >>> dist_q = 1 * si.meters
-    >>> dist_q.is_of(new_dim)
+    >>> dist = 1 * si.meters
+    >>> dist.is_of(new_dim)
     False
+
+For performance reasons, dimensionality is stored as a naked tuple. New dimensionalities
+can be derived much the same as with units, though the transformation functions must be
+invoke explicitly.
+
+.. code-block:: pycon
+
+    >>> from siquant.dimensions import dim_div, jounce_t, time_t
+    >>> crackle_t = dim_div(jounce_t, time_t)
+    >>> pop_t = dim_div(crackle_t, time_t)
 
 Normalization
 =============
 
 .. code-block:: pycon
 
-    >>> from siquant import ScalarQuantity
-    >>> from siquant.systems import si
+    >>> from siquant import si, converter
 
-    >>> meters_cvt = ScalarQuantity.As(si.meters)
+    >>> meters_cvt = converter(si.meters)
 
     >>> dist_q = meters_cvt(1000 * si.millimeters)
     >>> dist_q.quantity
@@ -107,7 +145,7 @@ SIUnit can be created directly by factory:
 
 .. code-block:: pycon
 
-    >>> from siquant.units import SIUnit
+    >>> from siquant import SIUnit
     >>> fathom = SIUnit.Unit(1.8288, m=1)
     SIUnit(1.8288, (0, 1, 0, 0, 0, 0, 0))
 
@@ -115,30 +153,36 @@ Alternatively they can be derived:
 
 .. code-block:: pycon
 
-    >>> from siquant.systems import si
+    >>> from siquant import si
     >>> rpm = si.unity / si.minutes
     >>> rpm
     SIUnit(0.016667, (0, 0, -1, 0, 0, 0, 0))
 
----------------------------
-Operations for Custom Types
----------------------------
+-----------------------------
+Extending Quantity Operations
+-----------------------------
 
 .. code-block:: pycon
 
-    >>> import numpy as np
-    >>> from siquant.quantities import Quantity as Q
-    >>> from siquant.systems import
+    >>> from siquant import SIUnit, Quantity, make, si
+    >>> class Vector:
+            __mul__ = __rmul__ = lambda s, scalar: Vector(s.x * scalar, s.y * scalar)
+            dot = lambda s, o: s.x * o.x + s.y * o.y
 
-    >>> def dot_applicator(q_inst : Q, other: Q) -> Tuple[Any, SIUnit]:
-    ...     if not isinstance(q_inst.quantity, np.ndarray):
-    ...         raise TypeError()
-    ...     if not isinstance(other.quantity, np.ndarray):
-    ...         raise TypeError()
-    ...     return (np.dot(q_inst.quantity, other.quantity), q_inst.units * other.units)
+    >>> class ExtendedQuantity(Quantity):
+            __slots__ = ()
 
-    >>> v1 = np.array([1,2,3,4,5]) * si.meters
-    >>> v2 = np.array([1,2,3,4,5]) * si.meters
-    >>> v3 = v1.apply(dot_applicator, v2)
-    >>> v3
-    Quantity(55, SIUnit(1, (0, 2, 0, 0, 0, 0, 0))
+            def dot_product(self, other):
+                assert isinstance(self.quantity, Vector)
+                assert isinstance(other.quantity, Vector)
+                return make(self.quantity.dot(other.quantity), self.units * other.units)
+
+    >>> SIUnit.factory = ExtendedQuantity
+
+    >>> distance = 100 * si.meters
+    >>> distance_vector = distance * Vector(1, 0)
+    >>> distance_vector.get_as(si.meters)
+    Vector(100, 0)
+    >>> scalar_product = distance_vector.dot(distance_vector)
+    >>> scalar_product.get_as(si.meters)
+    10000
