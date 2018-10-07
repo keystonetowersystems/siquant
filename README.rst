@@ -36,7 +36,7 @@ Dimensional Analysis
     '1000*kg**1*m**2*s**-2'
     >>> torque.get_as(si.newtons * si.meters)
     5000000.0
-    >>> torque.get_as(si.newtons)
+    >>> torque.get_as(si.newtons) # doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
       ...
     siquant.exceptions.UnitMismatchError: ...
@@ -127,7 +127,7 @@ Normalization
 
     >>> dist_q = meters_cvt(1000 * si.millimeters)
     >>> dist_q.quantity
-    1
+    1.0
 
     >>> dist_q = meters_cvt(1000 * si.meters)
     >>> dist_q.quantity
@@ -147,7 +147,8 @@ SIUnit can be created directly by factory:
 
     >>> from siquant import SIUnit
     >>> fathom = SIUnit.Unit(1.8288, m=1)
-    SIUnit(1.8288, (0, 1, 0, 0, 0, 0, 0))
+    >>> fathom
+    SIUnit(1.828800, (0, 1, 0, 0, 0, 0, 0))
 
 Alternatively they can be derived:
 
@@ -166,23 +167,29 @@ Extending Quantity Operations
 
     >>> from siquant import SIUnit, Quantity, make, si
     >>> class Vector:
-            __mul__ = __rmul__ = lambda s, scalar: Vector(s.x * scalar, s.y * scalar)
-            dot = lambda s, o: s.x * o.x + s.y * o.y
-
+    ...     def __init__(self, x, y):
+    ...         self.x = x
+    ...         self.y = y
+    ...     __mul__ = __rmul__ = lambda s, scalar: Vector(s.x * scalar, s.y * scalar)
+    ...     dot = lambda s, o: s.x * o.x + s.y * o.y
+    ...     def __repr__(self):
+    ...         return 'Vector(%d, %d)' % (self.x, self.y)
+    ...
     >>> class ExtendedQuantity(Quantity):
-            __slots__ = ()
-
-            def dot_product(self, other):
-                assert isinstance(self.quantity, Vector)
-                assert isinstance(other.quantity, Vector)
-                return make(self.quantity.dot(other.quantity), self.units * other.units)
-
+    ...     __slots__ = ()
+    ...
+    ...     def dot_product(self, other):
+    ...         assert isinstance(self.quantity, Vector)
+    ...         assert isinstance(other.quantity, Vector)
+    ...         return make(self.quantity.dot(other.quantity), self.units * other.units)
+    ...
     >>> SIUnit.factory = ExtendedQuantity
-
     >>> distance = 100 * si.meters
+    >>> distance
+    ExtendedQuantity(100, SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0)))
     >>> distance_vector = distance * Vector(1, 0)
     >>> distance_vector.get_as(si.meters)
     Vector(100, 0)
-    >>> scalar_product = distance_vector.dot(distance_vector)
-    >>> scalar_product.get_as(si.meters)
+    >>> scalar_product = distance_vector.dot_product(distance_vector)
+    >>> scalar_product.get_as(si.meters ** 2)
     10000
