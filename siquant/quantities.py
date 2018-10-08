@@ -1,4 +1,5 @@
 import numbers
+
 from functools import total_ordering
 
 from .exceptions import UnitMismatchError, unexpected_type_error
@@ -6,10 +7,25 @@ from .util import immutable
 
 
 def make(quantity, units):
+    """Entry point for creating quantities consistently
+
+    :param quantity: The value to tag with specific units.
+    :type quantity: ``_T``
+    :param units: The units of this quantity.
+    :type units: :class:`~siquant.units.SIUnit`
+    :rtype: ``_Q`` = :class:`~Quantity`
+    """
     return units.factory(quantity, units)
 
 
 def converter(units):
+    """Create a converter function which will return Quantities.
+
+    :param units: The units to convert a quantity to.
+    :type units: :class:`~siquant.units.SIUnit`
+    :rtype: ``Callable[[Any], _Q]``
+    """
+
     def _converter(value):
         if isinstance(value, Quantity):
             return value.cvt_to(units)
@@ -19,6 +35,24 @@ def converter(units):
 
 
 def is_of(dimensions):
+    """Create a validator function which checks if a value matches expected dimensions.
+
+    .. seealso::
+
+        Predefined :mod:`~siquant.dimensions`.
+
+        Creating new :func:`~siquant.dimensions.SIDimensions`.
+
+    :param dimensions: The expected dimensions.
+    :type dimensions: ``tuple``
+    :rtype: ``Callable[[Any], bool]``
+    """
+
+    if not isinstance(dimensions, tuple):
+        raise unexpected_type_error("dimensions", tuple, dimensions)
+    if not len(dimensions) == 7:
+        raise ValueError("Dimensions tuple must have 7 elements.", dimensions)
+
     def _validator(value):
         if not isinstance(value, Quantity):
             return False
@@ -30,6 +64,33 @@ def is_of(dimensions):
 @immutable
 @total_ordering
 class Quantity:
+    """Quantity wraps a value with units and provides arithmetic passthrough operations.
+
+    .. note::
+
+        Creation of Quantity directly is discouraged.
+
+        The preferred method are:
+
+        q = value * si.meters
+
+        q = make(value, si.meters)
+
+        Both of these methods delegate instantiation to
+        :attr:`~siquant.units.SIUnit.factory` in order to
+        more easily support clean extensibility.
+
+    :ivar quantity: The wrapped value.
+    :vartype quantity: ``_T``
+    :ivar units: The units of this quantity.
+    :vartype units: :class:`~siquant.units.SIUnit`
+
+    :param quantity: The quantity to be wrapped.
+    :type quantity: ``_T``
+    :param units: The units the quantity's value is expressed in.
+    :type units: :class:`~siquant.units.SIUnit`
+    """
+
     __slots__ = ("quantity", "units")
 
     def __init__(self, quantity, units):
@@ -40,9 +101,20 @@ class Quantity:
         super().__setattr__("units", units)
 
     def is_of(self, dimensions):
+        """
+
+        :param dimensions:
+        :return: ``bool``
+        """
         return self.units.dimensions == dimensions
 
     def get_as(self, units):
+        """
+
+        :param units: The units to express the underlying value in.
+        :type units: :class:`~siquant.units.SIUnit`
+        :rtype: ``_T``
+        """
         if self.units == units:
             return self.quantity
         if not self.units.compatible(units):
@@ -50,9 +122,21 @@ class Quantity:
         return self.units.scale / units.scale * self.quantity
 
     def cvt_to(quantity, units):
+        """Create an equivalent Quantity expressed in the provided units.
+
+        :param units: The units to express this quantity in.
+        :type units: :class:`~siquant.units.SIUnit`
+        :return: ``_Q`` = :class:`~siquant.quantities.Quantity`
+        """
         return make(quantity.get_as(units), units)
 
     def compatible(self, other):
+        """
+
+        :param other: The quantity to check for dimensional compatibility.
+        :type other: ``_Q`` = :class:`~siquant.quantities.Quantity`
+        :rtype: bool
+        """
         if not isinstance(other, Quantity):
             raise unexpected_type_error("other", Quantity, other)
         return self.units.compatible(other.units)

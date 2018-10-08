@@ -37,6 +37,12 @@ def test_is_of_validator():
     assert not validator(1)
     assert not validator(None)
 
+    with pytest.raises(TypeError):
+        is_of([1, 2, 3, 4, 5, 6, 7])
+
+    with pytest.raises(ValueError):
+        is_of((1, 2, 3))
+
 
 def test_create_and_extract():
     mass = Q(100, SIUnit.Unit(kg=1))

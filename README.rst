@@ -1,6 +1,6 @@
-========================================
-``siquant``: Simple Dimensional Analysis
-========================================
+=================================
+``siquant``: Dimensional Analysis
+=================================
 
 .. image:: https://badge.fury.io/py/siquant.svg
    :target: https://badge.fury.io/py/siquant
@@ -16,180 +16,53 @@
 
 ``siquant`` is a simple pure python 3 library to make dimensional analysis painless.
 
+It is a small, flexible codebase aimed at 2 specific related problems: implicit unit
+tracking, and ensuring semantic correctness (fail fast) with minimal overhead.
+
 ---------------
 Getting Started
 ---------------
 
-Dimensional Analysis
-====================
+0. Install ``siquant``
+
+``pip3 install siquant==4.0.0b1``
+
+1. Implicit Unit Tracking:
 
 .. code-block:: pycon
 
     >>> from siquant import si
+    >>> a = 10 * si.millimeters
+    >>> b = 10 * si.kilometers
+    >>> ab = a * b
+    >>> ab.quantity
+    100
+    >>> str(ab.units)
+    '1*m**2'
+    >>> ab.get_as(si.millimeters ** 2)
+    100000000.0
 
-    >>> force = 100 * si.kilonewtons
-    >>> moment_arm = 50 * si.meters
-    >>> torque = force * moment_arm
-    >>> torque.quantity
-    5000
-    >>> str(torque.units)
-    '1000*kg**1*m**2*s**-2'
-    >>> torque.get_as(si.newtons * si.meters)
-    5000000.0
-    >>> torque.get_as(si.newtons) # doctest: +IGNORE_EXCEPTION_DETAIL
-    Traceback (most recent call last):
-      ...
-    siquant.exceptions.UnitMismatchError: ...
-
-    >>> torque = torque.cvt_to(si.newtons * si.meters)
-    >>> torque.quantity
-    5000000.0
-    >>> str(torque.units)
-    '1*kg**1*m**2*s**-2'
-
-Some limited imperial units are also provided:
+2. Dimensional Analysis:
 
 .. code-block:: pycon
 
+    >>> from siquant.dimensions import area_t
     >>> from siquant import imperial, si
-    >>> floor_space = 200 * si.meters ** 2
-    >>> dollars_per_sq_ft = 250 / imperial.feet ** 2
-    >>> price = floor_space * dollars_per_sq_ft
-    >>> round(price.get_as(si.unity), 2)
-    538195.52
 
-Validation
-==========
-
-.. code-block:: pycon
-
-    >>> from siquant.dimensions import force_t, area_t, stress_t
-    >>> from siquant import si
-
-    >>> def normal_stress(force, area):
-    ...     assert force.is_of(force_t)
-    ...     assert area.is_of(area_t)
-    ...     return force / area
-
-    >>> stress = normal_stress(1 * si.newtons, 1 * si.meters ** 2)
-    >>> stress.is_of(stress_t)
-    True
-    >>> stress.is_of(area_t)
-    False
-
-Alternatively, the desired dimensionality can be captured in a validator:
-
-.. code-block:: pycon
-
-    >>> from siquant import si, is_of
-    >>> from siquant.dimensions import distance_t
-
-    >>> distance_validator = is_of(distance_t)
-    >>> distance_validator(10 * si.meters)
-    True
-    >>> distance_validator(10 * si.millimeters)
-    True
-    >>> distance_validator(10)
-    False
-    >>> distance_validator(10 * si.newtons)
-    False
-
-Sometimes you might want to check for dimensions that aren't provided by default.
-
-.. code-block:: pycon
-
-    >>> from siquant import si
-    >>> from siquant.dimensions import SIDimensions
-
-    >>> new_dim = SIDimensions(kg=1, m=1, s=1, k=1, a=1, mol=1, cd=1)
-    >>> dist = 1 * si.meters
-    >>> dist.is_of(new_dim)
-    False
-
-For performance reasons, dimensionality is stored as a naked tuple. New dimensionalities
-can be derived much the same as with units, though the transformation functions must be
-invoke explicitly.
-
-.. code-block:: pycon
-
-    >>> from siquant.dimensions import dim_div, jounce_t, time_t
-    >>> crackle_t = dim_div(jounce_t, time_t)
-    >>> pop_t = dim_div(crackle_t, time_t)
-
-Normalization
-=============
-
-.. code-block:: pycon
-
-    >>> from siquant import si, converter
-
-    >>> meters_cvt = converter(si.meters)
-
-    >>> dist_q = meters_cvt(1000 * si.millimeters)
-    >>> dist_q.quantity
-    1.0
-
-    >>> dist_q = meters_cvt(1000 * si.meters)
-    >>> dist_q.quantity
-    1000
-
-    >>> dist_q = meters_cvt(1000)
-    >>> dist_q.quantity
-    1000
-
----------
-New Units
----------
-
-SIUnit can be created directly by factory:
-
-.. code-block:: pycon
-
-    >>> from siquant import SIUnit
-    >>> fathom = SIUnit.Unit(1.8288, m=1)
-    >>> fathom
-    SIUnit(1.828800, (0, 1, 0, 0, 0, 0, 0))
-
-Alternatively they can be derived:
-
-.. code-block:: pycon
-
-    >>> from siquant import si
-    >>> rpm = si.unity / si.minutes
-    >>> rpm
-    SIUnit(0.016667, (0, 0, -1, 0, 0, 0, 0))
-
------------------------------
-Extending Quantity Operations
------------------------------
-
-.. code-block:: pycon
-
-    >>> from siquant import SIUnit, Quantity, make, si
-    >>> class Vector:
-    ...     def __init__(self, x, y):
-    ...         self.x = x
-    ...         self.y = y
-    ...     __mul__ = __rmul__ = lambda s, scalar: Vector(s.x * scalar, s.y * scalar)
-    ...     dot = lambda s, o: s.x * o.x + s.y * o.y
-    ...     def __repr__(self):
-    ...         return 'Vector(%d, %d)' % (self.x, self.y)
+    >>> def real_estate_price(area):
+    ...     assert area.is_of(area_t) #  or raise if at application/lib dmz
+    ...     monies_per_square_foot = 100 / imperial.feet ** 2
+    ...     return area * monies_per_square_foot
     ...
-    >>> class ExtendedQuantity(Quantity):
-    ...     __slots__ = ()
-    ...
-    ...     def dot_product(self, other):
-    ...         assert isinstance(self.quantity, Vector)
-    ...         assert isinstance(other.quantity, Vector)
-    ...         return make(self.quantity.dot(other.quantity), self.units * other.units)
-    ...
-    >>> SIUnit.factory = ExtendedQuantity
-    >>> distance = 100 * si.meters
-    >>> distance
-    ExtendedQuantity(100, SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0)))
-    >>> distance_vector = distance * Vector(1, 0)
-    >>> distance_vector.get_as(si.meters)
-    Vector(100, 0)
-    >>> scalar_product = distance_vector.dot_product(distance_vector)
-    >>> scalar_product.get_as(si.meters ** 2)
-    10000
+    >>> house_price = real_estate_price(100 * si.meters ** 2)
+    >>> house_price
+    Quantity(10000, SIUnit(10.763910, (0, 0, 0, 0, 0, 0, 0)))
+    >>> round(house_price.get_as(si.unity))
+    107639
+
+-----------------
+Projected Details
+-----------------
+
+``siquant`` releases are hosted on the `pypi package repository <https://pypi.org/project/siquant/>`_.
+
