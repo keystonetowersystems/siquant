@@ -1,6 +1,7 @@
 include .bumpversion.cfg
 include .coveragerc
 include .pre-commit-config.yaml
+include .readthedocs.yml
 include LICENSE
 include tox.ini
 include README.rst
