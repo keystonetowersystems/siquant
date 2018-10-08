@@ -1,6 +1,7 @@
 import pytest
 
-from siquant.units import ScalarQuantity, SIUnit
+from siquant.units import SIUnit
+from siquant.quantities import Quantity as Q
 
 
 @pytest.fixture
@@ -51,22 +52,23 @@ def test_unit_mul(unit):
     assert SIUnit.Unit(2) * unit == SIUnit(20.0, original_dimensions)
     assert unit * unit == SIUnit.Unit(100.0, kg=2, m=4, s=6, k=8, a=10, mol=12, cd=14)
 
-    assert 2 * unit == ScalarQuantity(2, unit)
-    assert unit * 2 == ScalarQuantity(2, unit)
+    assert 2 * unit == Q(2, unit)
+    assert unit * 2 == Q(2, unit)
 
-    assert 2 * unit * unit == ScalarQuantity(2, unit * unit)
-    assert unit * (2 * unit) == ScalarQuantity(2, unit * unit)
+    assert 2 * unit * unit == Q(2, unit * unit)
+    assert unit * (2 * unit) == Q(2, unit * unit)
 
     unit2 = unit
     unit2 *= unit2
     assert unit2 == unit * unit
 
+    none_q1 = None * unit
+    none_q2 = unit * None
+
+    assert none_q1 == none_q2
+
     with pytest.raises(TypeError):
-        unit * None
-    with pytest.raises(TypeError):
-        None * unit
-    with pytest.raises(TypeError):
-        unit *= None
+        none_q1 < none_q2
 
 
 def test_unit_div(unit):
@@ -76,23 +78,20 @@ def test_unit_div(unit):
     assert SIUnit.Unit(2) / unit == SIUnit(2 / 10, inverted_unit.dimensions)
     assert unit / unit == SIUnit.Unit(1)
 
-    assert 2 / unit == ScalarQuantity(2, inverted_unit)
-    assert unit / 2 == ScalarQuantity(1 / 2, unit)
+    assert 2 / unit == Q(2, inverted_unit)
+    assert unit / 2 == Q(1 / 2, unit)
 
-    assert unit / 2 / unit == ScalarQuantity(1 / 2, SIUnit.Unit(1))
-    assert unit / (2 / unit) == ScalarQuantity(
-        50, SIUnit.Unit(1, 2, 4, 6, 8, 10, 12, 14)
-    )
+    assert unit / 2 / unit == Q(1 / 2, SIUnit.Unit(1))
+    assert unit / (2 / unit) == Q(50, SIUnit.Unit(1, 2, 4, 6, 8, 10, 12, 14))
 
     unit /= unit
     assert unit == SIUnit.Unit(1)
 
+    none_q = None / unit
+    assert none_q.quantity is None
+
     with pytest.raises(TypeError):
         unit / None
-    with pytest.raises(TypeError):
-        None / unit
-    with pytest.raises(TypeError):
-        unit /= None
 
 
 def test_unit_base_units(unit):

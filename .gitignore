@@ -15,3 +15,9 @@
 /src/
 
 /.tox/
+
+/venv/
+
+.mypy_cache
+
+docs/_build

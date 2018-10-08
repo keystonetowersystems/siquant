@@ -1,17 +1,73 @@
 import numbers
 
 from .dimensions import SIDimensions, dim_div, dim_mul, dim_pow, dim_str
-from .quantities import ScalarQuantity
 from .util import immutable, flyweight
 
 
 @flyweight
 @immutable
 class SIUnit:
+    """SIUnit is a scaling of SI base unit dimensions.
+
+    :cvar factory:
+    :vartype factory: ``Callable[[_T, SIUnit], _Q]``
+
+    :param scale: The scaling factor of base SI dimensions.
+    :type scale: ``numbers.Real``
+    :param dimensions: The base SI dimensions.
+    :type dimensions: ``tuple``
+    """
+
     __slots__ = ("scale", "dimensions", "__weakref__")
+
+    #: :vartype factory: ``Callable[[_T, SIUnit], _Q]``
+    #:
+    #: The factory function which unit instances use to create quantities.
+    #:
+    #:    .. note::
+    #:
+    #:        SIUnit.factory is mapped to :class:`~siquant.quantities.Quantity`
+    #:        in __init__ by default. However, it is *not* required to be a type,
+    #:        and can be overwritten in client configuration.
+    #:
+    #:        It's purpose is to provide a consistent way to wrap values, and allow
+    #:        simple extensibility.
+    #:
+    #:        :func:`~siquant.quantities.make` is just a wrapper around this factory.
+    #:
+    #:        .. code-block:: python
+    #:
+    #:            def ext_factory(q, u):
+    #:                if isinstance(q, Vector):
+    #:                    return VectorQuantity(q, u)
+    #:                return Quantity(q, u)
+    #:
+    #:            SIUnit.factory = ext_factory
+    #:
+    factory = None
 
     @staticmethod
     def Unit(scale=1.0, kg=0, m=0, s=0, k=0, a=0, mol=0, cd=0):
+        """Create a new SIUnit with a scale of provided base units.
+
+        :param scale: The linear scaling factor of base units.
+        :type scale: ``numbers.Real``
+        :param kg: The exponent of kilograms.
+        :type kg: ``numbers.Real``
+        :param m: The exponent of meters.
+        :type m: ``numbers.Real``
+        :param s: The exponent of seconds.
+        :type s: ``numbers.Real``
+        :param k: The exponent of degrees Kelvin.
+        :type k: ``numbers.Real``
+        :param a: The exponent of Amperes.
+        :type a: ``numbers.Real``
+        :param mol: The exponent of mols.
+        :type mol: ``numbers.Real``
+        :param cd: The exponent of candelas.
+        :type cd: ``numbers.Real``
+        :rtype: :class:`SIUnit`
+        """
         return SIUnit(scale, SIDimensions(kg=kg, m=m, s=s, k=k, a=a, mol=mol, cd=cd))
 
     def __init__(self, scale, dimensions):
@@ -29,59 +85,44 @@ class SIUnit:
     cd = property(lambda self: self.dimensions[6])
 
     def base_units(self):
+        """Get an SIUnit of equivalent dimensions with a scaling factor of 1.0.
+
+        :rtype: :class:`~siquant.units.SIUnit`
+        """
         return SIUnit(1.0, self.dimensions)
 
     def compatible(self, units):
+        """Check whether the provided units are of the same dimensions.
+
+        :param units: The units to check.
+        :type units: :class:`~siquant.units.SIUnit`
+        :rtype: ``bool``
+        """
         return self.dimensions == units.dimensions
 
-    def __mul__(self, other):
-        if isinstance(other, SIUnit):
+    def __mul__(self, rhs):
+        if isinstance(rhs, SIUnit):
             return SIUnit(
-                self.scale * other.scale, dim_mul(self.dimensions, other.dimensions)
+                self.scale * rhs.scale, dim_mul(self.dimensions, rhs.dimensions)
             )
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(other, self)
-        if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(other.quantity, other.units * self)
-        return NotImplemented
+        return self.factory(rhs, self)
 
-    def __imul__(self, other):
-        if isinstance(other, SIUnit):
+    def __rmul__(self, lhs):
+        return self.factory(lhs, self)
+
+    def __truediv__(self, rhs):
+        if isinstance(rhs, SIUnit):
             return SIUnit(
-                self.scale * other.scale, dim_mul(self.dimensions, other.dimensions)
+                self.scale / rhs.scale, dim_div(self.dimensions, rhs.dimensions)
             )
-        return NotImplemented
+        return self.factory(1 / rhs, self)
 
-    def __rmul__(self, other):
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(other, self)
-        if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(other.quantity, other.units * self)
-        return NotImplemented
+    def __rtruediv__(self, lhs):
+        return self.factory(lhs, ~self)
 
-    def __truediv__(self, other):
-        if isinstance(other, SIUnit):
-            return SIUnit(
-                self.scale / other.scale, dim_div(self.dimensions, other.dimensions)
-            )
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(1 / other, self)
-        if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(1 / other.quantity, self / other.units)
-        return NotImplemented
-
-    __itruediv__ = __truediv__
-
-    def __rtruediv__(self, other):
-        if isinstance(other, numbers.Real):
-            return ScalarQuantity(other, ~self)
-        if isinstance(other, ScalarQuantity):
-            return ScalarQuantity(other.quantity, other.units / self)
-        return NotImplemented
-
-    def __pow__(self, exponent):
-        if isinstance(exponent, numbers.Real):
-            return SIUnit(self.scale ** exponent, dim_pow(self.dimensions, exponent))
+    def __pow__(self, rhs):
+        if isinstance(rhs, numbers.Real):
+            return SIUnit(self.scale ** rhs, dim_pow(self.dimensions, rhs))
         return NotImplemented
 
     def __invert__(self):

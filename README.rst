@@ -1,6 +1,6 @@
-========================================
-``siquant``: Simple Dimensional Analysis
-========================================
+=================================
+``siquant``: Dimensional Analysis
+=================================
 
 .. image:: https://badge.fury.io/py/siquant.svg
    :target: https://badge.fury.io/py/siquant
@@ -16,106 +16,53 @@
 
 ``siquant`` is a simple pure python 3 library to make dimensional analysis painless.
 
+It is a small, flexible codebase aimed at 2 specific related problems: implicit unit
+tracking, and ensuring semantic correctness (fail fast) with minimal overhead.
+
 ---------------
 Getting Started
 ---------------
 
-Dimensional Analysis
-====================
+0. Install ``siquant``
+
+``pip3 install siquant==4.0.0b1``
+
+1. Implicit Unit Tracking:
 
 .. code-block:: pycon
 
-    >>> from siquant.systems import si
-    >>> force = 100 * si.kilonewtons
-    >>> moment_arm = 50 * si.meters
-    >>> torque = force * moment_arm
-    >>> torque.quantity
-    5000
-    >>> str(torque.units)
-    '1000*kg**1*m**2*s**-2'
-    >>> torque.get_as(si.newtons * si.meters)
-    5000000.0
-    >>> torque.get_as(si.newtons)
-    Traceback (most recent call last):
-      ...
-    siquant.exceptions.UnitMismatchError: ...
+    >>> from siquant import si
+    >>> a = 10 * si.millimeters
+    >>> b = 10 * si.kilometers
+    >>> ab = a * b
+    >>> ab.quantity
+    100
+    >>> str(ab.units)
+    '1*m**2'
+    >>> ab.get_as(si.millimeters ** 2)
+    100000000.0
 
-    >>> torque = torque.cvt_to(si.newtons * si.meters)
-    >>> torque.quantity
-    5000000.0
-    >>> str(torque.units)
-    '1*kg**1*m**2*s**-2'
-
-Validation
-==========
+2. Dimensional Analysis:
 
 .. code-block:: pycon
 
-    >>> from siquant.dimensions import force, area, stress
-    >>> from siquant.systems import si
+    >>> from siquant.dimensions import area_t
+    >>> from siquant import imperial, si
 
-    >>> def normal_stress(force_q, area_q):
-    ...     assert force_q.is_of(force)
-    ...     assert area_q.is_of(area)
-    ...     return force_q / area_q
+    >>> def real_estate_price(area):
+    ...     assert area.is_of(area_t) #  or raise if at application/lib dmz
+    ...     monies_per_square_foot = 100 / imperial.feet ** 2
+    ...     return area * monies_per_square_foot
+    ...
+    >>> house_price = real_estate_price(100 * si.meters ** 2)
+    >>> house_price
+    Quantity(10000, SIUnit(10.763910, (0, 0, 0, 0, 0, 0, 0)))
+    >>> round(house_price.get_as(si.unity))
+    107639
 
-    >>> stress_q = normal_stress(1 * si.newtons, 1 * si.meters ** 2)
-    >>> stress_q.is_of(stress)
-    True
-    >>> stress_q.is_of(area)
-    False
+-----------------
+Projected Details
+-----------------
 
-Sometimes you might want to check for dimensions that aren't provided by default.
+``siquant`` releases are hosted on the `pypi package repository <https://pypi.org/project/siquant/>`_.
 
-.. code-block:: pycon
-
-    >>> from siquant.dimensions import SIDimensions
-    >>> from siquant.systems import si
-
-    >>> new_dim = SIDimensions(kg=1, m=1, s=1, k=1, a=1, mol=1, cd=1)
-    >>> dist_q = 1 * si.meters
-    >>> dist_q.is_of(new_dim)
-    False
-
-Normalization
-=============
-
-.. code-block:: pycon
-
-    >>> from siquant import ScalarQuantity
-    >>> from siquant.systems import si
-
-    >>> meters_cvt = ScalarQuantity.As(si.meters)
-
-    >>> dist_q = meters_cvt(1000 * si.millimeters)
-    >>> dist_q.quantity
-    1
-
-    >>> dist_q = meters_cvt(1000 * si.meters)
-    >>> dist_q.quantity
-    1000
-
-    >>> dist_q = meters_cvt(1000)
-    >>> dist_q.quantity
-    1000
-
----------
-New Units
----------
-
-SIUnit can be created directly by factory:
-
-.. code-block:: pycon
-
-    >>> from siquant.units import SIUnit
-    >>> fathom = SIUnit.Unit(1.8288, m=1)
-    SIUnit(1.8288, (0, 1, 0, 0, 0, 0, 0))
-
-Alternatively they can be derived:
-
-.. code-block:: pycon
-
-    >>> from siquant.systems import si
-    >>> rpm = si.unity / si.minutes
-    >>> rpm
-    SIUnit(0.016667, (0, 0, -1, 0, 0, 0, 0))

@@ -1,11 +1,12 @@
 import math
-
 import pytest
+
+import numpy as np
 
 import siquant.dimensions as dims
 
 from siquant.exceptions import UnitMismatchError, ImmutabilityError
-from siquant.quantities import ScalarQuantity
+from siquant.quantities import Quantity as Q, converter, is_of
 from siquant.systems import si
 from siquant.units import SIUnit
 
@@ -18,9 +19,34 @@ def test_immutability():
         del mass.quantity
 
 
+def test_np_quantity():
+
+    distances = Q(np.array([1, 2, 3, 4, 5, 6, 7]), si.meters)
+    distances *= 2
+
+    assert np.array_equal(
+        distances.get_as(si.meters), np.array([2, 4, 6, 8, 10, 12, 14])
+    )
+
+
+def test_is_of_validator():
+    validator = is_of(dims.speed_t)
+
+    assert validator(1 * si.meters / si.seconds)
+    assert not validator(1 * si.meters)
+    assert not validator(1)
+    assert not validator(None)
+
+    with pytest.raises(TypeError):
+        is_of([1, 2, 3, 4, 5, 6, 7])
+
+    with pytest.raises(ValueError):
+        is_of((1, 2, 3))
+
+
 def test_create_and_extract():
-    mass = ScalarQuantity(100, SIUnit.Unit(kg=1))
-    acceleration = ScalarQuantity(1, SIUnit.Unit(m=1, s=-2))
+    mass = Q(100, SIUnit.Unit(kg=1))
+    acceleration = Q(1, SIUnit.Unit(m=1, s=-2))
 
     force = 100 * si.newtons
 
@@ -164,11 +190,6 @@ def test_q_mul():
     dist *= 2
     assert dist == 2000 * si.millimeters
 
-    with pytest.raises(TypeError):
-        dist * (1, 2)
-    with pytest.raises(TypeError):
-        (1, 2) * dist
-
 
 def test_q_div():
     dist = 1000 * si.millimeters
@@ -187,8 +208,8 @@ def test_q_div():
 
 def test_dimensionality():
     dist = 1000 * si.millimeters
-    assert dist.is_of(dims.distance)
-    assert not dist.is_of(dims.area)
+    assert dist.is_of(dims.distance_t)
+    assert not dist.is_of(dims.area_t)
 
 
 def test_q_add():
@@ -248,7 +269,7 @@ def test_q_sub():
 
 
 def test_q_converters():
-    cvtr = ScalarQuantity.As(si.meters)
+    cvtr = converter(si.meters)
     assert cvtr(1000) == 1000 * si.meters
     assert cvtr(1000 * si.meters) == 1000 * si.meters
     assert cvtr(1000 * si.millimeters) == 1 * si.meters
