@@ -1,6 +1,9 @@
 =================================
 ``siquant``: Dimensional Analysis
 =================================
+.. image:: https://readthedocs.org/projects/siquant/badge/?version=latest
+   :target: https://siquant.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
 
 .. image:: https://badge.fury.io/py/siquant.svg
    :target: https://badge.fury.io/py/siquant
