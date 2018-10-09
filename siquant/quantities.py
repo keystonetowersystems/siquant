@@ -1,5 +1,3 @@
-import numbers
-
 try:
     from operator import matmul
 except ImportError:
@@ -228,9 +226,10 @@ class Quantity:
         return Quantity(lhs / self.quantity, ~self.units)
 
     def __pow__(self, exponent):
-        if isinstance(exponent, numbers.Real):
+        try:
             return make(self.quantity ** exponent, self.units ** exponent)
-        return NotImplemented
+        except TypeError:
+            return NotImplemented
 
     def __invert__(self):
         return make(1 / self.quantity, ~self.units)

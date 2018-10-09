@@ -1,5 +1,3 @@
-import numbers
-
 from .dimensions import SIDimensions, dim_div, dim_mul, dim_pow, dim_str
 from .util import immutable, flyweight
 
@@ -121,9 +119,10 @@ class SIUnit:
         return self.factory(lhs, ~self)
 
     def __pow__(self, rhs):
-        if isinstance(rhs, numbers.Real):
+        try:
             return SIUnit(self.scale ** rhs, dim_pow(self.dimensions, rhs))
-        return NotImplemented
+        except TypeError:
+            return NotImplemented
 
     def __invert__(self):
         return SIUnit(1 / self.scale, dim_div(SIDimensions(), self.dimensions))
