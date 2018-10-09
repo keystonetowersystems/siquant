@@ -18,7 +18,6 @@ class SIUnit:
 
     __slots__ = ("scale", "dimensions", "__weakref__")
 
-    #: :vartype factory: ``Callable[[_T, SIUnit], _Q]``
     #:
     #: The factory function which unit instances use to create quantities.
     #:
@@ -40,7 +39,7 @@ class SIUnit:
     #:                    return VectorQuantity(q, u)
     #:                return Quantity(q, u)
     #:
-    #:            SIUnit.factory = ext_factory
+    #:            SIUnit.factory = staticmethod(ext_factory)
     #:
     factory = None
 
