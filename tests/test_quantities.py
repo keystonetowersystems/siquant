@@ -1,14 +1,13 @@
+import sys
 import math
-import pytest
 
+import pytest
 import numpy as np
 
 import siquant.dimensions as dims
 
 from siquant.exceptions import UnitMismatchError, ImmutabilityError
-from siquant.quantities import Quantity as Q, converter, is_of
-from siquant.systems import si
-from siquant.units import SIUnit
+from siquant import make, converter, is_of, si, SIUnit
 
 
 def test_immutability():
@@ -20,13 +19,30 @@ def test_immutability():
 
 
 def test_np_quantity():
-
-    distances = Q(np.array([1, 2, 3, 4, 5, 6, 7]), si.meters)
+    distances = make(np.array([1, 2, 3, 4, 5, 6, 7]), si.meters)
     distances *= 2
 
-    assert np.array_equal(
-        distances.get_as(si.meters), np.array([2, 4, 6, 8, 10, 12, 14])
-    )
+    value = distances.get_as(si.meters)
+    assert np.array_equal(value, np.array([2, 4, 6, 8, 10, 12, 14]))
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 5), reason="operators.matmul introduced in py35"
+)
+def test_q_matmul():
+    from operator import matmul
+
+    distances = make(np.array([1, 2, 3]), si.meters)
+    value = matmul(distances, distances)
+    assert value.get_as(si.meters ** 2) == 14
+
+    value = matmul(distances, np.array([1, 2, 3]))
+    assert value.get_as(si.meters ** 1) == 14
+
+    with pytest.raises(TypeError):
+        # numpy really should just return NotImplemented instead of throwing a TypeError
+        value = matmul(np.array([1, 2, 3]), distances)
+        assert value.get_as(si.meters ** 1) == 14
 
 
 def test_is_of_validator():
@@ -45,8 +61,8 @@ def test_is_of_validator():
 
 
 def test_create_and_extract():
-    mass = Q(100, SIUnit.Unit(kg=1))
-    acceleration = Q(1, SIUnit.Unit(m=1, s=-2))
+    mass = make(100, SIUnit.Unit(kg=1))
+    acceleration = make(1, SIUnit.Unit(m=1, s=-2))
 
     force = 100 * si.newtons
 

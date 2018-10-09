@@ -1,5 +1,10 @@
 import numbers
 
+try:
+    from operator import matmul
+except ImportError:
+    pass  # matmul not supported
+
 from functools import total_ordering
 
 from .exceptions import UnitMismatchError, unexpected_type_error
@@ -80,9 +85,9 @@ class Quantity:
         :attr:`~siquant.units.SIUnit.factory` in order to
         more easily support clean extensibility.
 
-    :ivar quantity: The wrapped value.
+    :ivar quantity: The wrapped value. read only.
     :vartype quantity: ``_T``
-    :ivar units: The units of this quantity.
+    :ivar units: The units of this quantity. read only.
     :vartype units: :class:`~siquant.units.SIUnit`
 
     :param quantity: The quantity to be wrapped.
@@ -201,6 +206,16 @@ class Quantity:
 
     def __rmul__(self, lhs):
         return make(lhs * self.quantity, self.units)
+
+    def __matmul__(self, rhs):
+        if isinstance(rhs, Quantity):
+            return make(matmul(self.quantity, rhs.quantity), self.units * rhs.units)
+        return make(matmul(self.quantity, rhs), self.units)
+
+    __imatmul__ = __matmul__
+
+    def __rmatmul__(self, lhs):
+        return make(matmul(lhs, self.quantity), self.units)
 
     def __truediv__(self, rhs):
         if isinstance(rhs, Quantity):

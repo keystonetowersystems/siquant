@@ -10,7 +10,7 @@ def readme():
 
 
 INSTALL_REQUIRES = []
-EXTRAS_REQUIRE = {"docs": ["sphinx"], "tests": ["coverage", "pytest", "numpy"]}
+EXTRAS_REQUIRE = {"docs": ["sphinx", "numpy"], "tests": ["coverage", "pytest", "numpy"]}
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["docs"] + EXTRAS_REQUIRE["tests"] + ["pre-commit"]
 )

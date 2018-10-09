@@ -47,6 +47,59 @@ Some limited imperial units are also provided:
     >>> round(price.get_as(si.unity), 2)
     538195.52
 
+numpy
+~~~~~
+
+Any type which implements the basic arithmetic operators can
+be wrapped for unit tracking.
+
+.. doctest::
+
+    >>> import numpy as np
+    >>> from siquant import si
+    >>> value = np.array([1,2]) * si.meters
+    >>> value
+    array([Quantity(1, SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0))),
+           Quantity(2, SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0)))], dtype=object)
+    >>> value * 2
+    array([Quantity(2, SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0))),
+           Quantity(4, SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0)))], dtype=object)
+
+As you can see, this is technically correct, however we lose many of numpy's benefits
+in performance and features by creating object arrays. Additionaly, operator precedence
+effects behavior in ways that are best to explicitly avoid when dealing with other
+wrapper types.
+
+.. doctest::
+
+    >>> import numpy as np
+    >>> from siquant import si
+    >>> value = si.meters * np.array([1, 2])
+    >>> value
+    Quantity(array([1, 2]), SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0)))
+
+Better to just use :func:`~siquant.quantities.make` explicitly:
+
+.. doctest::
+
+    >>> import numpy as np
+    >>> from siquant import si, make
+    >>> value = make(np.array([1,2]), si.meters)
+    >>> value
+    Quantity(array([1, 2]), SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0)))
+
+    >>> value * 2
+    Quantity(array([2, 4]), SIUnit(1.000000, (0, 1, 0, 0, 0, 0, 0)))
+
+    >>> value = value ** 2
+    >>> value
+    Quantity(array([1, 4]), SIUnit(1.000000, (0, 2, 0, 0, 0, 0, 0)))
+
+    >>> value.get_as(si.millimeters ** 2)
+    array([1000000., 4000000.])
+
+So we can get performance we expect from numpy with dimensional gaurantees.
+
 .. -end-basics-
 
 Limitations

@@ -63,9 +63,14 @@ Getting Started
     >>> round(house_price.get_as(si.unity))
     107639
 
------------------
-Projected Details
------------------
+----------------
+Online Resources
+----------------
 
-``siquant`` releases are hosted on the `pypi package repository <https://pypi.org/project/siquant/>`_.
+``siquant`` is released under the `MIT LICENSE <https://github.com/keystonetowersystems/siquant/blob/master/LICENSE>`_.
+
+Releases are hosted in the `pypi package repository <https://pypi.org/project/siquant/>`_.
+
+More detailed documentation and examples can be found on `readthedocs <https://siquant.readthedocs.io/en/latest>`_.
+
 
