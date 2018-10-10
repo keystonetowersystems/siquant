@@ -8,17 +8,13 @@ def readme():
     with open(filepath) as f:
         return f.read()
 
+
 PROJECT_URLS = {
     "Documentation": "https://siquant.readthedocs.io/",
     "Bug Tracker": "https://github.com/keystonetowersystems/siquant/issues",
     "Source Code": "https://github.com/keystonetowersystems/siquant",
 }
-KEYWORDS = [
-    "SI",
-    "units",
-    "dimensional analysis",
-    "quantities"
-]
+KEYWORDS = ["SI", "units", "dimensional analysis", "quantities"]
 
 
 INSTALL_REQUIRES = []
@@ -26,7 +22,6 @@ EXTRAS_REQUIRE = {"docs": ["sphinx", "numpy"], "tests": ["coverage", "pytest", "
 EXTRAS_REQUIRE["dev"] = (
     EXTRAS_REQUIRE["docs"] + EXTRAS_REQUIRE["tests"] + ["pre-commit"]
 )
-
 
 
 setup(
