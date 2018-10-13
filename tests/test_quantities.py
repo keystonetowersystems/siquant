@@ -7,7 +7,7 @@ import numpy as np
 import siquant.dimensions as dims
 
 from siquant.exceptions import UnitMismatchError, ImmutabilityError
-from siquant import make, converter, is_of, si, SIUnit
+from siquant import make, converter, validator, are_of, si, SIUnit
 
 
 def test_immutability():
@@ -45,19 +45,26 @@ def test_q_matmul():
         assert value.get_as(si.meters ** 1) == 14
 
 
-def test_is_of_validator():
-    validator = is_of(dims.speed_t)
+def test_are_of_validator():
+    dim_check = validator(dims.speed_t)
 
-    assert validator(1 * si.meters / si.seconds)
-    assert not validator(1 * si.meters)
-    assert not validator(1)
-    assert not validator(None)
+    assert dim_check(1 * si.meters / si.seconds)
+    assert dim_check(1 * si.meters / si.seconds, 2 * si.meters / si.seconds)
+    assert not dim_check(1 * si.meters)
+    assert not dim_check(1)
+    assert not dim_check(None)
 
     with pytest.raises(TypeError):
-        is_of([1, 2, 3, 4, 5, 6, 7])
+        validator([1, 2, 3, 4, 5, 6, 7])
 
     with pytest.raises(ValueError):
-        is_of((1, 2, 3))
+        validator((1, 2, 3))
+
+
+def test_are_of():
+    assert are_of(dims.distance_t, 1 * si.meters, 2 * si.millimeters, 3 * si.kilometers)
+    assert not are_of(dims.angle_t, 1, 2, 3)
+    assert not are_of(dims.distance_t, 1 * si.meters, 1 * si.kilograms)
 
 
 def test_create_and_extract():

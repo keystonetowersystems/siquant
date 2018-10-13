@@ -37,7 +37,7 @@ def converter(units):
     return _converter
 
 
-def is_of(dimensions):
+def validator(dimensions):
     """Create a validator function which checks if a value matches expected dimensions.
 
     .. seealso::
@@ -56,12 +56,24 @@ def is_of(dimensions):
     if not len(dimensions) == 7:
         raise ValueError("Dimensions tuple must have 7 elements.", dimensions)
 
-    def _validator(value):
-        if not isinstance(value, Quantity):
-            return False
-        return value.is_of(dimensions)
+    def _validator(*values):
+        return are_of(dimensions, *values)
 
     return _validator
+
+
+def are_of(dimensions, *quantities):
+    """Check if quantities all match dimensions.
+
+    :param dimensions: The expected dimensionality.
+    :type dimensions: ``tuple``
+    :param quantities: Variadic. The instances to check against.
+    :rtype: ``bool``
+    """
+    try:
+        return all(q.is_of(dimensions) for q in quantities)
+    except AttributeError:
+        return False
 
 
 @immutable

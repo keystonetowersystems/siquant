@@ -126,8 +126,8 @@ calling :meth:`~siquant.quantities.Quantity.get_as`.
 
 .. doctest::
 
-    >>> from siquant.dimensions import force_t, area_t, stress_t
-    >>> from siquant import si
+    >>> from siquant.dimensions import force_t, area_t, stress_t, distance_t, volume_t
+    >>> from siquant import si, are_of
 
     >>> def normal_stress(force, area):
     ...     assert force.is_of(force_t)
@@ -142,14 +142,21 @@ calling :meth:`~siquant.quantities.Quantity.get_as`.
     >>> stress.get_as(si.kilopascals)
     0.001
 
+    >>> def cube_volume(length, height, depth):
+    ...     assert are_of(distance_t, length, height, depth)
+    ...     return length * height * depth
+    >>> volume = cube_volume(1 * si.meters, 1 * si.meters, 1 * si.meters)
+    >>> volume.is_of(volume_t)
+    True
+
 Alternatively, the desired dimensionality can be captured in a validator:
 
 .. doctest::
 
-    >>> from siquant import si, is_of
+    >>> from siquant import si, validator
     >>> from siquant.dimensions import distance_t
 
-    >>> distance_validator = is_of(distance_t)
+    >>> distance_validator = validator(distance_t)
     >>> distance_validator(10 * si.meters)
     True
     >>> distance_validator(10 * si.millimeters)

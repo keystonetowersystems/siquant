@@ -10,7 +10,9 @@ Quantity
 
 .. autofunction:: siquant.quantities.make
 
-.. autofunction:: siquant.quantities.is_of
+.. autofunction:: siquant.quantities.are_of
+
+.. autofunction:: siquant.quantities.validator
 
 .. autofunction:: siquant.quantities.converter
 
