@@ -28,7 +28,7 @@ Getting Started
 
 0. Install ``siquant``
 
-``pip3 install siquant==4.0.0b6``
+``pip3 install siquant==4.0.0b7``
 
 1. Implicit Unit Tracking:
 
