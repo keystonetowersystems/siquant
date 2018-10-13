@@ -48,7 +48,7 @@ def validator(dimensions):
 
     :param dimensions: The expected dimensions.
     :type dimensions: ``tuple``
-    :rtype: ``Callable[[Any], bool]``
+    :rtype: ``Callable[[Any, ...], bool]``
     """
 
     if not isinstance(dimensions, tuple):
