@@ -8,6 +8,8 @@ Keeping Track of Units
 
 .. -basics-
 
+
+
 .. doctest::
 
     >>> from siquant import si
@@ -36,6 +38,18 @@ Keeping Track of Units
     >>> str(torque.units)
     '1*kg**1*m**2*s**-2'
 
+Alternatively, units are ``Callable``, accepting an iterable, to avoid
+substantial repetition in creating quantities with the same units.
+
+.. doctest::
+
+    >>> from siquant import si
+    >>> a, b, c, d, e = si.kilograms(1, 2, 3, 4, 5)
+    >>> a.quantity
+    1
+    >>> e.quantity
+    5
+
 Some limited imperial units are also provided:
 
 .. doctest::
@@ -46,6 +60,34 @@ Some limited imperial units are also provided:
     >>> price = floor_space * dollars_per_sq_ft
     >>> round(price.get_as(si.unity), 2)
     538195.52
+
+Rounding
+~~~~~~~~~
+
+.. doctest::
+
+    >>> from siquant import si
+    >>> dist = 5.4321 * si.meters
+    >>> rounded = dist.round_to(si.millimeters)
+    >>> rounded.quantity
+    5432.0
+
+Approximation
+~~~~~~~~~~~~~
+
+.. doctest::
+
+    >>> from siquant import si, imperial
+    >>> track_mile = 1600 * si.meters
+    >>> true_mile = 1 * imperial.miles
+    >>> track_mile == 1 * imperial.miles
+    False
+    >>> track_mile.approx(1 * imperial.miles)
+    False
+    >>> track_mile.approx(1 * imperial.miles, atol=10 * si.meters)
+    True
+    >>> track_mile.approx(1 * imperial.miles, rtol=1e-2)
+    True
 
 numpy
 ~~~~~
