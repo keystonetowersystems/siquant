@@ -145,6 +145,17 @@ class Quantity:
         """
         return make(quantity.get_as(units), units)
 
+    def round_to(self, units, places=0):
+        """Create an equivalent Quantity rounded in provided units.
+
+        :param units: The units to express the quantity in.
+        :type units: :class:`~siquant.units.SIUnit`
+        :param places: The number of decimal places to round to.
+        :type places: ``int``
+        :rtype: ``_Q`` = :class:`~siquant.quantities.Quantity`
+        """
+        return make(round(self.get_as(units), places), units)
+
     def compatible(self, other):
         """
 
@@ -156,16 +167,62 @@ class Quantity:
             raise unexpected_type_error("other", Quantity, other)
         return self.units.compatible(other.units)
 
+    def __abs_epsilon(self, atol=1e-6):
+        if isinstance(atol, Quantity):
+            return atol
+        return atol * self.units
+
+    def __rel_epsilon(self, other, rtol=1e-9):
+        return rtol * max(abs(self), abs(other), 1 * self.units)
+
+    def abs_approx(self, other, atol=1e-6):
+        return self.approx(other, rtol=0, atol=atol)
+
+    def rel_approx(self, other, rtol=1e-9):
+        return self.approx(other, rtol=rtol, atol=0)
+
+    def approx(self, other, rtol=1e-9, atol=1e-6):
+        """
+
+        :raises: ``TypeError`` if other is not a Quantity
+
+        :param other:
+        :param rtol:
+        :type rtol:
+        :param atol:
+        :type atol:
+        :return:
+        """
+        if not self.compatible(other):
+            return False
+
+        epsilon = max(self.__rel_epsilon(other, rtol), self.__abs_epsilon(atol))
+        return abs(other - self) <= epsilon
+
     def __add__(self, other):
+        if other == 0:
+            return self
         if isinstance(other, Quantity):
             return make(self.quantity + other.get_as(self.units), self.units)
+        return NotImplemented
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
         return NotImplemented
 
     __iadd__ = __add__
 
     def __sub__(self, other):
+        if other == 0:
+            return self
         if isinstance(other, Quantity):
             return make(self.quantity - other.get_as(self.units), self.units)
+        return NotImplemented
+
+    def __rsub__(self, other):
+        if other == 0:
+            return -self
         return NotImplemented
 
     __isub__ = __sub__
@@ -245,3 +302,6 @@ class Quantity:
 
     def __invert__(self):
         return make(1 / self.quantity, ~self.units)
+
+    def __float__(self):
+        return float(self.quantity)

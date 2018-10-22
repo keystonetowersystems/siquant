@@ -10,7 +10,7 @@ from siquant.exceptions import UnitMismatchError, ImmutabilityError
 from siquant import make, converter, validator, are_of, si, SIUnit
 
 
-def test_immutability():
+def test_q_immutability():
     mass = 100 * si.kilograms
     with pytest.raises(ImmutabilityError):
         mass.quantity = 10
@@ -18,12 +18,46 @@ def test_immutability():
         del mass.quantity
 
 
-def test_np_quantity():
+def test_q_np():
     distances = make(np.array([1, 2, 3, 4, 5, 6, 7]), si.meters)
     distances *= 2
 
     value = distances.get_as(si.meters)
     assert np.array_equal(value, np.array([2, 4, 6, 8, 10, 12, 14]))
+
+
+def test_q_round_to():
+    distance = 1.23456789 * si.meters
+
+    assert 1235 == distance.round_to(si.millimeters).quantity
+
+    assert 1234.6 == distance.round_to(si.millimeters, 1).quantity
+
+
+def test_q_approx():
+
+    dist1 = 1.234567890 * si.meters
+    dist2 = 1.234567 * si.meters
+
+    assert dist1.approx(dist2)
+    assert dist1.approx(dist2, atol=1 * si.millimeters)
+
+    assert dist1.abs_approx(dist2)
+
+    with pytest.raises(UnitMismatchError):
+        dist1.approx(dist2, atol=1 * si.milligrams)
+
+    assert not dist1.approx(1.23456789 * si.kilograms)
+
+    dist1 = 1234567890 * si.meters
+    dist2 = 1234567891 * si.meters
+
+    assert dist1.approx(dist2)
+    assert dist1.rel_approx(dist2)
+    assert not dist1.approx(dist2, rtol=0)
+    assert not dist1.abs_approx(dist2)
+
+    assert dist1.approx(dist2, rtol=0, atol=1 * si.meters)
 
 
 @pytest.mark.skipif(
@@ -168,6 +202,13 @@ def test_q_ordering():
         dist1 <= 1
 
 
+def test_q_float():
+    assert pytest.approx(1) == math.cos(0 * si.radians)
+    assert pytest.approx(-1) == math.cos(math.pi * si.radians)
+    assert pytest.approx(0) == math.cos(math.pi / 2 * si.radians)
+    assert pytest.approx(0) == math.cos(math.pi * 3 / 2 * si.radians)
+
+
 def test_q_truth():
     dist_true = 1 * si.meters
     dist_false = 0 * si.meters
@@ -243,6 +284,9 @@ def test_q_add():
     diff1 = dist1 + dist2
     diff2 = dist2 + dist1
 
+    assert dist1 == dist1 + 0
+    assert dist1 == 0 + dist1
+
     assert diff1 == 2 * si.meters
     assert diff1.units == si.meters
 
@@ -267,6 +311,9 @@ def test_q_sub():
     dist1 = 1 * si.meters
     dist2 = 1000 * si.millimeters
     area = dist1 * dist2
+
+    assert dist1 == dist1 - 0
+    assert -dist1 == 0 - dist1
 
     diff1 = dist1 - dist2
     diff2 = dist2 - dist1

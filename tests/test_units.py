@@ -45,6 +45,17 @@ def test_unit_cmp(unit):
     assert unit != object()
 
 
+def test_unit_call(unit):
+    meters = SIUnit.Unit(1, m=1)
+
+    (a, b, c, d, e) = meters(1, 2, 3, 4, 5)
+    assert 1 * meters == a
+    assert 2 * meters == b
+    assert 3 * meters == c
+    assert 4 * meters == d
+    assert 5 * meters == e
+
+
 def test_unit_mul(unit):
     original_dimensions = unit.dimensions
 

@@ -97,6 +97,9 @@ class SIUnit:
         """
         return self.dimensions == units.dimensions
 
+    def __call__(self, *args):
+        return (self.factory(value, self) for value in args)
+
     def __mul__(self, rhs):
         if isinstance(rhs, SIUnit):
             return SIUnit(
