@@ -3,6 +3,7 @@ try:
 except ImportError:
     pass  # matmul not supported
 
+from copy import copy, deepcopy
 from functools import total_ordering
 
 from .exceptions import UnitMismatchError, unexpected_type_error
@@ -305,3 +306,9 @@ class Quantity:
 
     def __float__(self):
         return float(self.quantity)
+
+    def __copy__(self):
+        return make(copy(self.quantity), self.units)
+
+    def __deepcopy__(self, memodict):
+        return make(deepcopy(self.quantity), self.units)

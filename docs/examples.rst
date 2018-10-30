@@ -80,13 +80,13 @@ Approximation
     >>> from siquant import si, imperial
     >>> track_mile = 1600 * si.meters
     >>> true_mile = 1 * imperial.miles
-    >>> track_mile == 1 * imperial.miles
+    >>> track_mile == true_mile
     False
-    >>> track_mile.approx(1 * imperial.miles)
+    >>> track_mile.approx(true_mile)
     False
-    >>> track_mile.approx(1 * imperial.miles, atol=10 * si.meters)
+    >>> track_mile.approx(true_mile, atol=10 * si.meters)
     True
-    >>> track_mile.approx(1 * imperial.miles, rtol=1e-2)
+    >>> track_mile.approx(true_mile, rtol=1e-2)
     True
 
 numpy

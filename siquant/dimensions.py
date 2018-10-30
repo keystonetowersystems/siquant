@@ -161,6 +161,12 @@ volumetric_flow_t = dim_div(volume_t, time_t)
 force_t = dim_mul(mass_t, acceleration_t)
 
 #:
+moment_t = dim_mul(force_t, distance_t)
+
+#:
+torque_t = moment_t
+
+#:
 impulse_t = dim_mul(force_t, time_t)
 
 #:

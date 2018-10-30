@@ -1,6 +1,8 @@
 import sys
 import math
 
+from copy import copy, deepcopy
+
 import pytest
 import numpy as np
 
@@ -8,6 +10,44 @@ import siquant.dimensions as dims
 
 from siquant.exceptions import UnitMismatchError, ImmutabilityError
 from siquant import make, converter, validator, are_of, si, SIUnit
+
+
+def test_q_copying():
+    a = 100 * si.meters
+    b = copy(a)
+    c = deepcopy(a)
+
+    assert a is not b
+    assert a is not c
+    assert a == b
+    assert a == c
+
+    class Ref:
+        def __init__(self, value):
+            self.value = value
+
+        def __eq__(self, other):
+            return self.value == other.value
+
+    ref = Ref(100)
+    ref_ref = Ref(Ref(100))
+
+    rq = make(ref, si.meters)
+    rc = copy(rq)
+
+    assert rq == rc
+    assert rq is not rc
+
+    rqq = make(ref_ref, si.meters)
+    rqc = copy(rqq)
+    rqd = deepcopy(rqq)
+
+    assert rqq is not rqc
+    assert rqq == rqc
+
+    ref_ref.value.value = 50
+    assert rqq == rqc
+    assert rqq != rqd
 
 
 def test_q_immutability():

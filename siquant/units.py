@@ -98,6 +98,11 @@ class SIUnit:
         return self.dimensions == units.dimensions
 
     def __call__(self, *args):
+        """Create quantities these units for all arguments.
+
+        :param args: The values to tag with units.
+        :rtype: ``_Q`` = :class:`~siquant.quantities.Quantity`
+        """
         return (self.factory(value, self) for value in args)
 
     def __mul__(self, rhs):
