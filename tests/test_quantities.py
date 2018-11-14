@@ -65,6 +65,12 @@ def test_q_np():
     value = distances.get_as(si.meters)
     assert np.array_equal(value, np.array([2, 4, 6, 8, 10, 12, 14]))
 
+    assert distances[0].approx(2 * si.meters)
+    assert distances[6].approx(14 * si.meters)
+
+    assert min(distances).approx(2 * si.meters)
+    assert max(distances).approx(14 * si.meters)
+
 
 def test_q_round_to():
     distance = 1.23456789 * si.meters

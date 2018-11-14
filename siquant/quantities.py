@@ -307,6 +307,18 @@ class Quantity:
     def __float__(self):
         return float(self.quantity)
 
+    def __int__(self):
+        return int(self.quantity)
+
+    def __len__(self):
+        return len(self.quantity)
+
+    def __iter__(self):
+        return (make(q, self.units) for q in self.quantity)
+
+    def __getitem__(self, idx):
+        return make(self.quantity[idx], self.units)
+
     def __copy__(self):
         return make(copy(self.quantity), self.units)
 
