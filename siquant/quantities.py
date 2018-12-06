@@ -8,6 +8,7 @@ from functools import total_ordering
 
 from .exceptions import UnitMismatchError, unexpected_type_error
 from .util import immutable
+from .unitless import Unitless
 
 
 def make(quantity, units):
@@ -164,6 +165,8 @@ class Quantity:
         :type other: ``_Q`` = :class:`~siquant.quantities.Quantity`
         :rtype: bool
         """
+        if isinstance(other, Unitless):
+            other = make(other, self.units.Unit())
         if not isinstance(other, Quantity):
             raise unexpected_type_error("other", Quantity, other)
         return self.units.compatible(other.units)
@@ -201,29 +204,29 @@ class Quantity:
         return abs(other - self) <= epsilon
 
     def __add__(self, other):
-        if other == 0:
-            return self
         if isinstance(other, Quantity):
             return make(self.quantity + other.get_as(self.units), self.units)
+        if isinstance(other, Unitless):
+            return self + make(other, self.units.Unit())
         return NotImplemented
 
     def __radd__(self, other):
-        if other == 0:
-            return self
+        if isinstance(other, Unitless):
+            return make(other, self.units.Unit()) + self
         return NotImplemented
 
     __iadd__ = __add__
 
     def __sub__(self, other):
-        if other == 0:
-            return self
         if isinstance(other, Quantity):
             return make(self.quantity - other.get_as(self.units), self.units)
+        if isinstance(other, Unitless):
+            return self - make(other, self.units.Unit())
         return NotImplemented
 
     def __rsub__(self, other):
-        if other == 0:
-            return -self
+        if isinstance(other, Unitless):
+            return make(other, self.units.Unit()) - self
         return NotImplemented
 
     __isub__ = __sub__
@@ -239,6 +242,8 @@ class Quantity:
             return self.units.compatible(other.units) and self.quantity == other.get_as(
                 self.units
             )
+        if isinstance(other, Unitless):
+            return self == make(other, self.units.Unit())
         return NotImplemented
 
     def __ne__(self, other):
@@ -246,6 +251,8 @@ class Quantity:
             return not self.units.compatible(
                 other.units
             ) or self.quantity != other.get_as(self.units)
+        if isinstance(other, Unitless):
+            return self != make(other, self.units.Unit())
         return NotImplemented
 
     def __hash__(self):
