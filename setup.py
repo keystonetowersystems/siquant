@@ -26,7 +26,7 @@ EXTRAS_REQUIRE["dev"] = (
 
 setup(
     name="siquant",
-    version="4.0.0b10",
+    version="4.0.0b11",
     description="Dimensional Analysis and Unit Tracking Library",
     long_description=readme(),
     url="https://github.com/keystonetowersystems/siquant",
