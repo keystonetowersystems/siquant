@@ -45,15 +45,29 @@ def test_unit_cmp(unit):
     assert unit != object()
 
 
-def test_unit_call(unit):
+def test_unit_pack(unit):
     meters = SIUnit.Unit(1, m=1)
 
-    (a, b, c, d, e) = meters(1, 2, 3, 4, 5)
+    (a, b, c, d, e) = meters.pack(1, 2, 3, 4, 5)
     assert 1 * meters == a
     assert 2 * meters == b
     assert 3 * meters == c
     assert 4 * meters == d
     assert 5 * meters == e
+
+
+def test_unit_unpack():
+    meters = SIUnit.Unit(1, m=1)
+
+    a = 1 * meters
+    b = 2 * meters
+    c = 3 * meters
+
+    aa, bb, cc = meters.unpack(a, b, c)
+
+    assert a.quantity == aa
+    assert b.quantity == bb
+    assert c.quantity == cc
 
 
 def test_unit_mul(unit):

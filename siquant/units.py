@@ -97,13 +97,24 @@ class SIUnit:
         """
         return self.dimensions == units.dimensions
 
-    def __call__(self, *args):
+    def quantities(self, iterable):
         """Create quantities these units for all arguments.
 
-        :param args: The values to tag with units.
+        :param args (Iterable[Any]): The values to tag with units.
         :rtype: ``_Q`` = :class:`~siquant.quantities.Quantity`
         """
-        return (self.factory(value, self) for value in args)
+        return (self.factory(value, self) for value in iterable)
+
+    def values(self, iterable):
+        return (quantity.get_as(self) for quantity in iterable)
+
+    def pack(self, *values):
+        return self.quantities(values)
+
+    def unpack(self, *quantities):
+        return self.values(quantities)
+
+    __call__ = quantities
 
     def __mul__(self, rhs):
         if isinstance(rhs, SIUnit):
