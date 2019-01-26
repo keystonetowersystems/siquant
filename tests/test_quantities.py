@@ -191,10 +191,6 @@ def test_q_eq_ne():
     assert dist1 == dist2
     assert dist2 == dist1
 
-    assert dist1 != 1
-    assert dist2 != 1000
-    assert area != 1
-
     assert dist1 != dist3
     assert dist3 != dist1
 
@@ -209,21 +205,6 @@ def test_q_eq_ne():
 
     assert dist1 != si.meters
     assert si.meters != dist1
-
-    count = 500 * si.unity
-
-    assert dist1 != count
-    assert count != dist1
-
-    assert count == 500 * si.unity
-    assert count == 500
-    assert 500 == count
-
-    percent = SIUnit.Unit(1 / 100)
-
-    hundo = 100 * percent
-
-    assert hundo == 1
 
 
 def test_q_ordering():
@@ -349,6 +330,9 @@ def test_q_add():
     diff1 = dist1 + dist2
     diff2 = dist2 + dist1
 
+    assert dist1 == dist1 + 0
+    assert dist1 == 0 + dist1
+
     assert diff1 == 2 * si.meters
     assert diff1.units == si.meters
 
@@ -368,15 +352,14 @@ def test_q_add():
     dist1 += dist2
     assert dist1 == 2 * si.meters
 
-    count = 100 * si.unity
-    assert count == 100
-    assert count + 100 == 200
-
 
 def test_q_sub():
     dist1 = 1 * si.meters
     dist2 = 1000 * si.millimeters
     area = dist1 * dist2
+
+    assert dist1 == dist1 - 0
+    assert -dist1 == 0 - dist1
 
     diff1 = dist1 - dist2
     diff2 = dist2 - dist1
@@ -399,13 +382,6 @@ def test_q_sub():
 
     dist1 -= dist2
     assert dist1 == 0 * si.meters
-
-    count = 500 * si.unity
-    assert count == 500 * si.unity
-    assert count - 100 == 400 * si.unity
-    assert count - 100 == 400
-    assert 1000 - count == 500 * si.unity
-    assert 1000 - count == 500
 
 
 def test_q_converters():
