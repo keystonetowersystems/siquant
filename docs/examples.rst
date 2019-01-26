@@ -38,16 +38,37 @@ Keeping Track of Units
     >>> str(torque.units)
     '1*kg**1*m**2*s**-2'
 
-Alternatively, units are ``Callable``, accepting an iterable, to avoid
-substantial repetition in creating quantities with the same units.
+Alternatively, units are ``Callable``, accepting an iterable, and *lazily* promoting
+those values to quantites. Similarly they can be demoted.
 
 .. doctest::
 
     >>> from siquant import si
-    >>> a, b, c, d, e = si.kilograms(1, 2, 3, 4, 5)
+    >>> start_values = (1, 2, 3, 4, 5)
+    >>> meter_values = tuple(si.meters(start_values))
+    >>> meter_values[0].quantity
+    1
+    >>> meter_values[4].quantity
+    5
+    >>> new_values = tuple(si.meters.values(meter_values))
+    >>> new_values == start_values
+    True
+
+Similarly, ``pack`` and ``unpack`` can be used with arguments directly:
+
+
+.. doctest::
+
+    >>> from siquant import si
+    >>> a, b, c, d, e = si.kilograms.pack(1, 2, 3, 4, 5)
     >>> a.quantity
     1
     >>> e.quantity
+    5
+    >>> aa, bb, cc, dd, ee = si.kilograms.unpack(a, b, c, d, e)
+    >>> aa
+    1
+    >>> ee
     5
 
 Some limited imperial units are also provided:
