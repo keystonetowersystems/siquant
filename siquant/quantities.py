@@ -204,7 +204,8 @@ class Quantity:
         if other == 0:
             return self
         if isinstance(other, Quantity):
-            return make(self.quantity + other.get_as(self.units), self.units)
+            units = min(self.units, other.units)
+            return make(self.get_as(units) + other.get_as(units), units)
         return NotImplemented
 
     def __radd__(self, other):
@@ -218,7 +219,8 @@ class Quantity:
         if other == 0:
             return self
         if isinstance(other, Quantity):
-            return make(self.quantity - other.get_as(self.units), self.units)
+            units = min(self.units, other.units)
+            return make(self.get_as(units) - other.get_as(units), units)
         return NotImplemented
 
     def __rsub__(self, other):

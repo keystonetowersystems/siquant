@@ -334,7 +334,7 @@ def test_q_add():
     assert dist1 == 0 + dist1
 
     assert diff1 == 2 * si.meters
-    assert diff1.units == si.meters
+    assert diff1.units == si.millimeters
 
     assert diff2 == 2 * si.meters
     assert diff2.units == si.millimeters
@@ -365,7 +365,7 @@ def test_q_sub():
     diff2 = dist2 - dist1
 
     assert diff1 == 0 * si.meters
-    assert diff1.units == si.meters
+    assert diff1.units == si.millimeters
 
     assert diff2 == 0 * si.meters
     assert diff2.units == si.millimeters

@@ -1,7 +1,11 @@
+from functools import total_ordering
+
 from .dimensions import SIDimensions, dim_div, dim_mul, dim_pow, dim_str
 from .util import immutable, flyweight
+from .exceptions import UnitMismatchError
 
 
+@total_ordering
 @flyweight
 @immutable
 class SIUnit:
@@ -148,6 +152,13 @@ class SIUnit:
     def __eq__(self, other):
         if isinstance(other, SIUnit):
             return self.scale == other.scale and self.dimensions == other.dimensions
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, SIUnit):
+            if self.dimensions != other.dimensions:
+                raise UnitMismatchError(self, other)
+            return self.scale < other.scale
         return NotImplemented
 
     def __ne__(self, other):
