@@ -125,7 +125,7 @@ class Quantity:
         return self.units.dimensions == dimensions
 
     def get_as(self, units):
-        """
+        """ Extract the underlying quantity in express units.
 
         :param units: The units to express the underlying value in.
         :type units: :class:`~siquant.units.SIUnit`
@@ -136,6 +136,15 @@ class Quantity:
         if not self.units.compatible(units):
             raise UnitMismatchError(self.units, units)
         return self.units.scale / units.scale * self.quantity
+
+    def round_as(self, units, places=0):
+        """ Extract the underlying quantity rounded to express units.
+
+        :param units: The units to express the underlying value in.
+        :param places: The number of decimal places to round to.
+        :return: ``_T``
+        """
+        return round(self.get_as(units), places)
 
     def cvt_to(quantity, units):
         """Create an equivalent Quantity expressed in the provided units.
